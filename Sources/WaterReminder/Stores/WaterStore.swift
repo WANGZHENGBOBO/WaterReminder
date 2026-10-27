@@ -106,7 +106,7 @@ final class WaterStore: ObservableObject {
             changed.handledNotifications = Array(changed.handledNotifications.suffix(100))
         }
         guard save(changed) else { return }
-        queue(try? DrinkSyncEvent(kind: .drink, recordID: drink.id, timestamp: drink.date,
+        queue(try? DrinkSyncEvent(kind: .drink, recordID: drink.id.uuidString, timestamp: drink.date,
                                   milliliters: drink.grams, source: "mac"))
         let milestone = crossed.max()
         feedback = DrinkFeedback(milestone: milestone)
@@ -133,7 +133,7 @@ final class WaterStore: ObservableObject {
                 celebrated, at: remainingTotal, goal: preferences.goal)
         }
         if save(changed) {
-            queue(try? DrinkSyncEvent(kind: .delete, recordID: drink.id, timestamp: now,
+            queue(try? DrinkSyncEvent(kind: .delete, recordID: drink.id.uuidString, timestamp: now,
                                       milliliters: nil, source: "mac"))
             notice = "已撤销本次记录"; reschedule()
         }

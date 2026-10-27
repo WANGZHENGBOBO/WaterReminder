@@ -14,14 +14,14 @@ public struct DrinkSyncEvent: Codable, Equatable, Identifiable {
     }
 
     public let schemaVersion: Int
-    public let id: UUID
+    public let id: String
     public let kind: Kind
-    public let recordID: UUID
+    public let recordID: String
     public let timestamp: Date
     public let milliliters: Int?
     public let source: String
 
-    public init(id: UUID = UUID(), kind: Kind, recordID: UUID, timestamp: Date,
+    public init(id: String = UUID().uuidString, kind: Kind, recordID: String, timestamp: Date,
                 milliliters: Int?, source: String, schemaVersion: Int = 1) throws {
         self.schemaVersion = schemaVersion
         self.id = id
@@ -36,9 +36,9 @@ public struct DrinkSyncEvent: Codable, Equatable, Identifiable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try values.decode(Int.self, forKey: .schemaVersion)
-        id = try values.decode(UUID.self, forKey: .id)
+        id = try values.decode(String.self, forKey: .id)
         kind = try values.decode(Kind.self, forKey: .kind)
-        recordID = try values.decode(UUID.self, forKey: .recordID)
+        recordID = try values.decode(String.self, forKey: .recordID)
         timestamp = try values.decode(Date.self, forKey: .timestamp)
         milliliters = try values.decodeIfPresent(Int.self, forKey: .milliliters)
         source = try values.decode(String.self, forKey: .source)
@@ -60,6 +60,9 @@ public struct DrinkSyncEvent: Codable, Equatable, Identifiable {
 
     private func validate() throws {
         guard schemaVersion == 1 else { throw DrinkSyncError.unsupportedSchema }
+        guard !id.isEmpty, id.count <= 128, !recordID.isEmpty, recordID.count <= 128 else {
+            throw DrinkSyncError.invalidSource
+        }
         guard !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               source.count <= 64 else { throw DrinkSyncError.invalidSource }
         switch kind {
@@ -76,19 +79,33 @@ public struct DrinkSyncEvent: Codable, Equatable, Identifiable {
 public enum DrinkSyncMerge {
     public static func apply(events: [DrinkSyncEvent], to drinks: [Drink]) -> [Drink] {
         let deleted = Set(events.lazy.filter { $0.kind == .delete }.map(\.recordID))
-        var records = Dictionary(uniqueKeysWithValues: drinks.filter { !deleted.contains($0.id) }.map { ($0.id, $0) })
+        var records = Dictionary(uniqueKeysWithValues: drinks.filter { !deleted.contains($0.id.uuidString) }.map { ($0.id.uuidString, $0) })
         let additions = events.filter { $0.kind == .drink && !deleted.contains($0.recordID) }
             .sorted {
                 if $0.timestamp != $1.timestamp { return $0.timestamp < $1.timestamp }
-                return $0.id.uuidString < $1.id.uuidString
+                return $0.id < $1.id
             }
         for event in additions {
             guard let amount = event.milliliters else { continue }
-            records[event.recordID] = Drink(id: event.recordID, date: event.timestamp, grams: amount)
+            let drinkID = UUID(uuidString: event.recordID) ?? stableUUID(for: event.recordID)
+            records[event.recordID] = Drink(id: drinkID, date: event.timestamp, grams: amount)
         }
         return records.values.sorted {
             if $0.date != $1.date { return $0.date < $1.date }
             return $0.id.uuidString < $1.id.uuidString
+        }
+    }
+
+    private static func stableUUID(for value: String) -> UUID {
+        var bytes = [UInt8](repeating: 0, count: 16)
+        for (index, byte) in value.utf8.enumerated() {
+            let slot = index % 16
+            bytes[slot] = bytes[slot] &* 31 &+ byte &+ UInt8(truncatingIfNeeded: index)
+        }
+        bytes[6] = (bytes[6] & 0x0f) | 0x50
+        bytes[8] = (bytes[8] & 0x3f) | 0x80
+        return bytes.withUnsafeBytes { raw in
+            UUID(uuid: raw.load(as: uuid_t.self))
         }
     }
 }

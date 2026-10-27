@@ -9,7 +9,7 @@ struct ICloudDrinkSync {
             .appendingPathComponent("com.bobo.WaterReminder", isDirectory: true)
         let cloud = fileManager.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs", isDirectory: true)
-            .appendingPathComponent("喝水BO～/Sync", isDirectory: true)
+            .appendingPathComponent("Shortcuts/喝水BO～/Sync", isDirectory: true)
         return Self(filesystem: DrinkSyncFilesystem(
             outboxDirectory: applicationSupport.appendingPathComponent("sync-outbox", isDirectory: true),
             syncDirectory: cloud,

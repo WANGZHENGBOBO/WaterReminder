@@ -405,8 +405,8 @@ final class ReminderTests {
     }
 
     func testDrinkSyncProtocolAndMerge() throws {
-        let recordID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
-        let eventID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
+        let recordID = "11111111-1111-1111-1111-111111111111"
+        let eventID = "20261027T101530.123-48291"
         let added = try DrinkSyncEvent(
             id: eventID, kind: .drink, recordID: recordID,
             timestamp: date(23, 9, 30), milliliters: 197, source: "iphone-shortcut"
@@ -415,17 +415,17 @@ final class ReminderTests {
         XCTAssertEqual(roundTrip, added)
 
         let duplicate = try DrinkSyncEvent(
-            id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+            id: "20261027T101530.124-48292",
             kind: .drink, recordID: recordID,
             timestamp: date(23, 9, 30), milliliters: 197, source: "mac"
         )
         let merged = DrinkSyncMerge.apply(events: [added, duplicate], to: [])
         XCTAssertEqual(merged.count, 1)
-        XCTAssertEqual(merged.first?.id, recordID)
+        XCTAssertEqual(merged.first?.id.uuidString.lowercased(), recordID)
         XCTAssertEqual(merged.first?.grams, 197)
 
         let deleted = try DrinkSyncEvent(
-            id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
+            id: "20261027T101600.000-48293",
             kind: .delete, recordID: recordID,
             timestamp: date(23, 10), milliliters: nil, source: "mac"
         )
@@ -434,7 +434,7 @@ final class ReminderTests {
         for invalidAmount in [0, 2001] {
             do {
                 _ = try DrinkSyncEvent(
-                    id: UUID(), kind: .drink, recordID: UUID(), timestamp: date(23, 12),
+                    id: UUID().uuidString, kind: .drink, recordID: UUID().uuidString, timestamp: date(23, 12),
                     milliliters: invalidAmount, source: "iphone-shortcut"
                 )
                 preconditionFailure("Expected invalid amount \(invalidAmount) to be rejected")
@@ -465,7 +465,7 @@ final class ReminderTests {
         XCTAssertEqual(try storage.loadEvents().filter { $0.kind == .drink }.count, 1)
 
         let deleted = try DrinkSyncEvent(
-            id: UUID(), kind: .delete, recordID: first.id,
+            id: UUID().uuidString, kind: .delete, recordID: first.id.uuidString,
             timestamp: date(23, 10), milliliters: nil, source: "mac"
         )
         try storage.enqueue(deleted)
@@ -479,6 +479,13 @@ final class ReminderTests {
         XCTAssertEqual(settings.goal, 1800)
         XCTAssertEqual(settings.serving, 197)
 
+        try Data("197\n250\n".utf8).write(to: cloud.appendingPathComponent("iphone-amounts.txt"))
+        try Data("2026-10-23T10:15:00+08:00\n2026年10月23日 11:20\n".utf8)
+            .write(to: cloud.appendingPathComponent("iphone-times.txt"))
+        let shortcutEvents = try storage.loadEvents().filter { $0.source == "iphone-shortcut" }
+        XCTAssertEqual(shortcutEvents.map(\.milliliters), [197, 250])
+        XCTAssertEqual(shortcutEvents.map(\.recordID), ["iphone-log-0", "iphone-log-1"])
+
         let blockedRoot = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: blockedRoot) }
         try Data("not-a-directory".utf8).write(to: blockedRoot)
@@ -487,7 +494,7 @@ final class ReminderTests {
             syncDirectory: blockedRoot.appendingPathComponent("cloud")
         )
         let pending = try DrinkSyncEvent(
-            id: UUID(), kind: .drink, recordID: UUID(),
+            id: UUID().uuidString, kind: .drink, recordID: UUID().uuidString,
             timestamp: date(23, 12), milliliters: 250, source: "mac"
         )
         try offline.enqueue(pending)
