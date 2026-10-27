@@ -10,3 +10,5 @@ xcuserdata/
 *.mobileprovision
 state.json
 *.csv
+*_processed.cherri
+*_unsigned.shortcut

@@ -551,6 +551,7 @@ final class ReminderTests {
         XCTAssertEqual(summary.total, 447)
         XCTAssertEqual(summary.phoneLogCount, 3)
         XCTAssertEqual(summary.records.map(\.milliliters), [197, 250])
+        XCTAssertEqual(summary.records.map(\.displayTime), ["09:15", "11:20"])
         XCTAssertEqual(summary.records.map(\.recordID), [
             "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
             "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"

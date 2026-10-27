@@ -18,11 +18,13 @@ public struct DrinkSyncSettings: Codable, Equatable {
 public struct DrinkSyncTodayRecord: Codable, Equatable {
     public let recordID: String
     public let timestamp: String
+    public let displayTime: String
     public let milliliters: Int
 
-    public init(recordID: String, timestamp: String, milliliters: Int) {
+    public init(recordID: String, timestamp: String, displayTime: String, milliliters: Int) {
         self.recordID = recordID
         self.timestamp = timestamp
+        self.displayTime = displayTime
         self.milliliters = milliliters
     }
 }
@@ -145,10 +147,16 @@ public struct DrinkSyncFilesystem {
                 return $0.id.uuidString < $1.id.uuidString
             }
         let iso = ISO8601DateFormatter()
+        let timeFormatter = DateFormatter()
+        timeFormatter.calendar = calendar
+        timeFormatter.locale = Locale(identifier: "zh_CN")
+        timeFormatter.timeZone = calendar.timeZone
+        timeFormatter.dateFormat = "HH:mm"
         let records = today.map {
             DrinkSyncTodayRecord(
                 recordID: $0.id.uuidString,
                 timestamp: iso.string(from: $0.date),
+                displayTime: timeFormatter.string(from: $0.date),
                 milliliters: $0.grams
             )
         }

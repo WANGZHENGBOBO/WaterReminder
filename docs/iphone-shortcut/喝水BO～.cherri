@@ -1,0 +1,105 @@
+#define name 喝水BO～
+#define color blue
+#define glyph waterDrop
+#define version 26
+
+#include 'actions/calendar'
+#include 'actions/documents'
+#include 'actions/math'
+
+@today = formatDate(CurrentDate, "Custom", "yyyy-MM-dd")
+@goal = 1800
+@baseTotal = 0
+@summaryCursor = 0
+@summaryRecords = ""
+
+@summaryFile = getFile("/喝水BO～/Sync/today-summary.json", nil, false)
+if @summaryFile {
+    @summary = getDictionary(@summaryFile)
+    @summaryDay = "{@summary['day']}"
+    if @summaryDay == @today {
+        @goalText = "{@summary['goal']}"
+        @totalText = "{@summary['total']}"
+        @cursorText = "{@summary['phoneLogCount']}"
+        @goal = getNumbers(@goalText)
+        @baseTotal = getNumbers(@totalText)
+        @summaryCursor = getNumbers(@cursorText)
+        @records = @summary['records']
+        for record in @records {
+            @recordDictionary = getDictionary(@record)
+            @recordTime = "{@recordDictionary['displayTime']}"
+            @recordAmount = "{@recordDictionary['milliliters']}"
+            @summaryRecords = "{@summaryRecords}{@recordTime}　{@recordAmount}ml\n"
+        }
+    }
+}
+
+@savedDay = getFile("/喝水BO～/Sync/phone-state-day.txt", nil, false)
+@savedCursorFile = getFile("/喝水BO～/Sync/phone-state-cursor.txt", nil, false)
+@savedPendingFile = getFile("/喝水BO～/Sync/phone-state-pending.txt", nil, false)
+@savedHistoryFile = getFile("/喝水BO～/Sync/phone-state-history.txt", nil, false)
+@savedDayText = "{@savedDay}"
+@savedCursor = 0
+@pending = 0
+@pendingHistory = ""
+@zeroText = "0"
+@emptyText = ""
+if @savedCursorFile { @savedCursor = getNumbers(@savedCursorFile) }
+if @savedPendingFile { @pending = getNumbers(@savedPendingFile) }
+if @savedHistoryFile { @pendingHistory = "{@savedHistoryFile}" }
+
+if @savedDayText != @today || @summaryCursor > @savedCursor {
+    @pending = 0
+    @pendingHistory = ""
+    saveFile("/喝水BO～/Sync/phone-state-day.txt", @today, true)
+    saveFile("/喝水BO～/Sync/phone-state-cursor.txt", @summaryCursor, true)
+    saveFile("/喝水BO～/Sync/phone-state-pending.txt", @zeroText, true)
+    saveFile("/喝水BO～/Sync/phone-state-history.txt", @emptyText, true)
+}
+
+@menuItems = list("喝了 197ml", "自定义水量", "查看今日记录")
+@choice = chooseFromList(@menuItems, "喝水BO～")
+@choiceText = "{@choice}"
+
+if @choiceText == "查看今日记录" {
+    @total = @baseTotal
+    @total += @pending
+    @percent = @total
+    @percent *= 100
+    @percent /= @goal
+    @allRecords = "{@summaryRecords}{@pendingHistory}"
+    if !@allRecords { @allRecords = "今天还没有记录" }
+    show("今日 {@total} / {@goal}ml（{@percent}%）\n\n{@allRecords}")
+    stop()
+}
+
+@amount = 197
+if @choiceText == "自定义水量" {
+    @amount = prompt("这次喝了多少 ml？", "Number", "197")
+}
+if @amount < 1 || @amount > 2000 {
+    alert("请输入 1～2000ml", "水量不正确")
+    stop()
+}
+
+@logTime = formatDate(CurrentDate, "Custom", "yyyy/M/d HH:mm")
+@displayTime = formatDate(CurrentDate, "Custom", "HH:mm")
+@amountLine = "{@amount}\n"
+@timeLine = "{@logTime}\n"
+appendToFile("/喝水BO～/Sync/iphone-amounts.txt", @amountLine)
+appendToFile("/喝水BO～/Sync/iphone-times.txt", @timeLine)
+@pending += @amount
+@pendingHistory = "{@pendingHistory}{@displayTime}　{@amount}ml\n"
+saveFile("/喝水BO～/Sync/phone-state-day.txt", @today, true)
+saveFile("/喝水BO～/Sync/phone-state-cursor.txt", @summaryCursor, true)
+saveFile("/喝水BO～/Sync/phone-state-pending.txt", @pending, true)
+saveFile("/喝水BO～/Sync/phone-state-history.txt", @pendingHistory, true)
+
+@total = @baseTotal
+@total += @pending
+@percent = @total
+@percent *= 100
+@percent /= @goal
+@remaining = @goal
+@remaining -= @total
+show("已记录 {@amount}ml 💧\n今日 {@total} / {@goal}ml\n完成 {@percent}%，还差 {@remaining}ml")
