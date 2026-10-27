@@ -424,6 +424,16 @@ final class ReminderTests {
         XCTAssertEqual(merged.first?.id.uuidString.lowercased(), recordID)
         XCTAssertEqual(merged.first?.grams, 197)
 
+        let shortcutAdded = try DrinkSyncEvent(
+            id: "iphone-log-0", kind: .drink, recordID: "iphone-log-0",
+            timestamp: date(23, 9, 45), milliliters: 197, source: "iphone-shortcut"
+        )
+        let shortcutFirstMerge = DrinkSyncMerge.apply(events: [shortcutAdded], to: [])
+        XCTAssertEqual(DrinkSyncMerge.apply(events: [shortcutAdded], to: shortcutFirstMerge).count, 1)
+        XCTAssertEqual(DrinkSyncMerge.apply(
+            events: [shortcutAdded], to: shortcutFirstMerge + shortcutFirstMerge
+        ).count, 1)
+
         let deleted = try DrinkSyncEvent(
             id: "20261027T101600.000-48293",
             kind: .delete, recordID: recordID,
@@ -447,6 +457,11 @@ final class ReminderTests {
     }
 
     func testDrinkSyncFilesystemAndOutbox() throws {
+        let shortcutPath = DrinkSyncFilesystem.shortcutSyncDirectory(
+            homeDirectory: URL(fileURLWithPath: "/Users/example")
+        ).path
+        XCTAssertEqual(shortcutPath, "/Users/example/Library/Mobile Documents/iCloud~is~workflow~my~workflows/Documents/喝水BO～/Sync")
+
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let outbox = root.appendingPathComponent("outbox")
         let cloud = root.appendingPathComponent("cloud")

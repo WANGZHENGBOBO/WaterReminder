@@ -78,22 +78,29 @@ public struct DrinkSyncEvent: Codable, Equatable, Identifiable {
 
 public enum DrinkSyncMerge {
     public static func apply(events: [DrinkSyncEvent], to drinks: [Drink]) -> [Drink] {
-        let deleted = Set(events.lazy.filter { $0.kind == .delete }.map(\.recordID))
-        var records = Dictionary(uniqueKeysWithValues: drinks.filter { !deleted.contains($0.id.uuidString) }.map { ($0.id.uuidString, $0) })
-        let additions = events.filter { $0.kind == .drink && !deleted.contains($0.recordID) }
+        let deleted = Set(events.lazy.filter { $0.kind == .delete }.map { resolvedUUID(for: $0.recordID) })
+        var records: [UUID: Drink] = [:]
+        for drink in drinks where !deleted.contains(drink.id) {
+            records[drink.id] = drink
+        }
+        let additions = events.filter { $0.kind == .drink && !deleted.contains(resolvedUUID(for: $0.recordID)) }
             .sorted {
                 if $0.timestamp != $1.timestamp { return $0.timestamp < $1.timestamp }
                 return $0.id < $1.id
             }
         for event in additions {
             guard let amount = event.milliliters else { continue }
-            let drinkID = UUID(uuidString: event.recordID) ?? stableUUID(for: event.recordID)
-            records[event.recordID] = Drink(id: drinkID, date: event.timestamp, grams: amount)
+            let drinkID = resolvedUUID(for: event.recordID)
+            records[drinkID] = Drink(id: drinkID, date: event.timestamp, grams: amount)
         }
         return records.values.sorted {
             if $0.date != $1.date { return $0.date < $1.date }
             return $0.id.uuidString < $1.id.uuidString
         }
+    }
+
+    private static func resolvedUUID(for value: String) -> UUID {
+        UUID(uuidString: value) ?? stableUUID(for: value)
     }
 
     private static func stableUUID(for value: String) -> UUID {

@@ -26,6 +26,12 @@ public struct DrinkSyncFilesystem {
         self.fileManager = fileManager
     }
 
+    public static func shortcutSyncDirectory(homeDirectory: URL) -> URL {
+        homeDirectory
+            .appendingPathComponent("Library/Mobile Documents/iCloud~is~workflow~my~workflows/Documents", isDirectory: true)
+            .appendingPathComponent("喝水BO～/Sync", isDirectory: true)
+    }
+
     public func loadEvents() throws -> [DrinkSyncEvent] {
         var byID: [String: DrinkSyncEvent] = [:]
         for directory in [syncDirectory, outboxDirectory] where fileManager.fileExists(atPath: directory.path) {

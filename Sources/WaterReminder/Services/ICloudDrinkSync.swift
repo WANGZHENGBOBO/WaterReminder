@@ -7,9 +7,9 @@ struct ICloudDrinkSync {
     static func live(fileManager: FileManager = .default) -> Self {
         let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("com.bobo.WaterReminder", isDirectory: true)
-        let cloud = fileManager.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs", isDirectory: true)
-            .appendingPathComponent("Shortcuts/喝水BO～/Sync", isDirectory: true)
+        let cloud = DrinkSyncFilesystem.shortcutSyncDirectory(
+            homeDirectory: fileManager.homeDirectoryForCurrentUser
+        )
         return Self(filesystem: DrinkSyncFilesystem(
             outboxDirectory: applicationSupport.appendingPathComponent("sync-outbox", isDirectory: true),
             syncDirectory: cloud,
