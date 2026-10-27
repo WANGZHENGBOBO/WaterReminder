@@ -211,6 +211,7 @@ final class WaterStore: ObservableObject {
                 _ = save(changed)
             }
             try? drinkSync.publishSettings(goal: preferences.goal, serving: preferences.serving)
+            try? drinkSync.publishTodaySummary(drinks: state.drinks, goal: preferences.goal, now: now)
         } catch {
             // iCloud may be temporarily unavailable. The local state remains authoritative
             // and pending events stay in the outbox for the next tick.

@@ -24,4 +24,7 @@ struct ICloudDrinkSync {
     func publishSettings(goal: Int, serving: Int) throws {
         try filesystem.publishSettings(goal: goal, serving: serving)
     }
+    func publishTodaySummary(drinks: [Drink], goal: Int, now: Date) throws {
+        try filesystem.publishTodaySummary(drinks: drinks, goal: goal, now: now)
+    }
 }
