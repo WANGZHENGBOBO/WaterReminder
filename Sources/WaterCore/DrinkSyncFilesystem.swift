@@ -15,6 +15,37 @@ public struct DrinkSyncSettings: Codable, Equatable {
     }
 }
 
+public struct DrinkSyncTodayRecord: Codable, Equatable {
+    public let recordID: String
+    public let timestamp: String
+    public let milliliters: Int
+
+    public init(recordID: String, timestamp: String, milliliters: Int) {
+        self.recordID = recordID
+        self.timestamp = timestamp
+        self.milliliters = milliliters
+    }
+}
+
+public struct DrinkSyncTodaySummary: Codable, Equatable {
+    public let schemaVersion: Int
+    public let day: String
+    public let goal: Int
+    public let total: Int
+    public let phoneLogCount: Int
+    public let records: [DrinkSyncTodayRecord]
+
+    public init(day: String, goal: Int, total: Int, phoneLogCount: Int,
+                records: [DrinkSyncTodayRecord]) {
+        self.schemaVersion = 1
+        self.day = day
+        self.goal = goal
+        self.total = total
+        self.phoneLogCount = phoneLogCount
+        self.records = records
+    }
+}
+
 public struct DrinkSyncFilesystem {
     public let outboxDirectory: URL
     public let syncDirectory: URL
@@ -104,6 +135,44 @@ public struct DrinkSyncFilesystem {
         )
     }
 
+    public func publishTodaySummary(drinks: [Drink], goal: Int, now: Date,
+                                    calendar: Calendar = .current) throws {
+        guard (1...10_000).contains(goal) else { throw DrinkSyncError.invalidAmount }
+        let today = drinks
+            .filter { calendar.isDate($0.date, inSameDayAs: now) }
+            .sorted {
+                if $0.date != $1.date { return $0.date < $1.date }
+                return $0.id.uuidString < $1.id.uuidString
+            }
+        let iso = ISO8601DateFormatter()
+        let records = today.map {
+            DrinkSyncTodayRecord(
+                recordID: $0.id.uuidString,
+                timestamp: iso.string(from: $0.date),
+                milliliters: $0.grams
+            )
+        }
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = calendar.timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        let summary = DrinkSyncTodaySummary(
+            day: formatter.string(from: now),
+            goal: goal,
+            total: today.reduce(0) { $0 + $1.grams },
+            phoneLogCount: shortcutLogRowCount(in: syncDirectory),
+            records: records
+        )
+        try fileManager.createDirectory(at: syncDirectory, withIntermediateDirectories: true)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(summary).write(
+            to: syncDirectory.appendingPathComponent("today-summary.json"),
+            options: .atomic
+        )
+    }
+
     private func eventURL(_ id: String, in directory: URL) -> URL {
         let safe = id.map { $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "-" }
         return directory.appendingPathComponent(String(safe).lowercased()).appendingPathExtension("json")
@@ -124,6 +193,17 @@ public struct DrinkSyncFilesystem {
                 timestamp: timestamp, milliliters: amount, source: "iphone-shortcut"
             )
         }
+    }
+
+    private func shortcutLogRowCount(in directory: URL) -> Int {
+        let amountURL = directory.appendingPathComponent("iphone-amounts.txt")
+        let timeURL = directory.appendingPathComponent("iphone-times.txt")
+        guard let amountText = try? String(contentsOf: amountURL, encoding: .utf8),
+              let timeText = try? String(contentsOf: timeURL, encoding: .utf8) else { return 0 }
+        return min(
+            amountText.split(whereSeparator: \.isNewline).count,
+            timeText.split(whereSeparator: \.isNewline).count
+        )
     }
 
     private static func parseShortcutDate(_ value: String) -> Date? {

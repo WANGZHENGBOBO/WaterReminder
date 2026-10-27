@@ -44,7 +44,8 @@ final class ReminderTests {
         suite.testPopoverKeepsTopEdgeWhenContentHeightChanges()
         try suite.testDrinkSyncProtocolAndMerge()
         try suite.testDrinkSyncFilesystemAndOutbox()
-        print("PASS: 30 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor, iCloud sync protocol, iCloud filesystem")
+        try suite.testDrinkSyncTodaySummary()
+        print("PASS: 31 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor, iCloud sync protocol, iCloud filesystem, iPhone today summary")
     }
     var calendar: Calendar {
         var value = Calendar(identifier: .gregorian)
@@ -521,5 +522,38 @@ final class ReminderTests {
             at: root.appendingPathComponent("offline-outbox"),
             includingPropertiesForKeys: nil
         ).filter { $0.pathExtension == "json" }.count, 1)
+    }
+
+    func testDrinkSyncTodaySummary() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let cloud = root.appendingPathComponent("cloud")
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: cloud, withIntermediateDirectories: true)
+        let storage = DrinkSyncFilesystem(outboxDirectory: root.appendingPathComponent("outbox"), syncDirectory: cloud)
+
+        try Data("197\ninvalid\n250\n".utf8).write(to: cloud.appendingPathComponent("iphone-amounts.txt"))
+        try Data("2026/10/23 09:15\n2026/10/23 09:30\n2026/10/23 11:20\nextra\n".utf8)
+            .write(to: cloud.appendingPathComponent("iphone-times.txt"))
+        let drinks = [
+            Drink(id: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!, date: date(23, 11, 20), grams: 250),
+            Drink(id: UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!, date: date(23, 9, 15), grams: 197),
+            Drink(id: UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!, date: date(22, 18), grams: 600)
+        ]
+
+        try storage.publishTodaySummary(drinks: drinks, goal: 1800, now: date(23, 18), calendar: calendar)
+        let summary = try JSONDecoder().decode(
+            DrinkSyncTodaySummary.self,
+            from: Data(contentsOf: cloud.appendingPathComponent("today-summary.json"))
+        )
+        XCTAssertEqual(summary.schemaVersion, 1)
+        XCTAssertEqual(summary.day, "2026-10-23")
+        XCTAssertEqual(summary.goal, 1800)
+        XCTAssertEqual(summary.total, 447)
+        XCTAssertEqual(summary.phoneLogCount, 3)
+        XCTAssertEqual(summary.records.map(\.milliliters), [197, 250])
+        XCTAssertEqual(summary.records.map(\.recordID), [
+            "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
+            "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"
+        ])
     }
 }
