@@ -42,7 +42,8 @@ final class ReminderTests {
         suite.testWelcomeEligibility()
         suite.testSettingsSaveClosesOnlyOnSuccess()
         suite.testPopoverKeepsTopEdgeWhenContentHeightChanges()
-        print("PASS: 28 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor")
+        try suite.testDrinkSyncProtocolAndMerge()
+        print("PASS: 29 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor, iCloud sync protocol")
     }
     var calendar: Calendar {
         var value = Calendar(identifier: .gregorian)
@@ -397,5 +398,47 @@ final class ReminderTests {
         XCTAssertEqual(closeCount, 0)
         XCTAssertTrue(SettingsSaveFlow.perform(save: { true }, close: { closeCount += 1 }))
         XCTAssertEqual(closeCount, 1)
+    }
+
+    func testDrinkSyncProtocolAndMerge() throws {
+        let recordID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+        let eventID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
+        let added = try DrinkSyncEvent(
+            id: eventID, kind: .drink, recordID: recordID,
+            timestamp: date(23, 9, 30), milliliters: 197, source: "iphone-shortcut"
+        )
+        let roundTrip = try DrinkSyncEvent.decode(added.encoded())
+        XCTAssertEqual(roundTrip, added)
+
+        let duplicate = try DrinkSyncEvent(
+            id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+            kind: .drink, recordID: recordID,
+            timestamp: date(23, 9, 30), milliliters: 197, source: "mac"
+        )
+        let merged = DrinkSyncMerge.apply(events: [added, duplicate], to: [])
+        XCTAssertEqual(merged.count, 1)
+        XCTAssertEqual(merged.first?.id, recordID)
+        XCTAssertEqual(merged.first?.grams, 197)
+
+        let deleted = try DrinkSyncEvent(
+            id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
+            kind: .delete, recordID: recordID,
+            timestamp: date(23, 10), milliliters: nil, source: "mac"
+        )
+        XCTAssertEqual(DrinkSyncMerge.apply(events: [deleted, added], to: []).count, 0)
+
+        for invalidAmount in [0, 2001] {
+            do {
+                _ = try DrinkSyncEvent(
+                    id: UUID(), kind: .drink, recordID: UUID(), timestamp: date(23, 12),
+                    milliliters: invalidAmount, source: "iphone-shortcut"
+                )
+                preconditionFailure("Expected invalid amount \(invalidAmount) to be rejected")
+            } catch {}
+        }
+        do {
+            _ = try DrinkSyncEvent.decode(Data("{not-json}".utf8))
+            preconditionFailure("Expected malformed JSON to be rejected")
+        } catch {}
     }
 }

@@ -73,6 +73,9 @@ public struct Drink: Codable, Identifiable, Equatable {
     public init(date: Date = Date(), grams: Int) {
         self.id = UUID(); self.date = date; self.grams = grams
     }
+    public init(id: UUID, date: Date, grams: Int) {
+        self.id = id; self.date = date; self.grams = grams
+    }
 }
 
 public struct SavedState: Codable {
