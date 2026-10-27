@@ -61,6 +61,10 @@ struct SettingsView: View {
                 }
                 Section("通用") {
                     Button("重新查看使用指南") { WelcomeWindow.shared.show() }
+                    Toggle("使用 iCloud 同步 iPhone 快捷指令", isOn: Binding(
+                        get: { draft.iCloudSyncEnabled ?? false },
+                        set: { draft.iCloudSyncEnabled = $0 }
+                    ))
                     Toggle("登录时自动启动", isOn: $launchAtLogin)
                         .onChange(of: launchAtLogin) { enabled in
                             do {
@@ -72,7 +76,9 @@ struct SettingsView: View {
                             } catch { loginError = "自动启动设置失败：\(error.localizedDescription)" }
                         }
                     if let loginError { Text(loginError).font(.caption).foregroundStyle(.red) }
-                    Text("所有记录保存在本机。应用退出或电脑睡眠时不发送提醒；重新打开或唤醒后继续。")
+                    Text((draft.iCloudSyncEnabled ?? false)
+                         ? "饮水记录同步到你自己的 iCloud Drive，不使用第三方服务器。应用退出或电脑睡眠时不发送提醒。"
+                         : "所有记录保存在本机。应用退出或电脑睡眠时不发送提醒；重新打开或唤醒后继续。")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }.formStyle(.grouped)

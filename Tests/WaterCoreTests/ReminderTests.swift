@@ -43,7 +43,8 @@ final class ReminderTests {
         suite.testSettingsSaveClosesOnlyOnSuccess()
         suite.testPopoverKeepsTopEdgeWhenContentHeightChanges()
         try suite.testDrinkSyncProtocolAndMerge()
-        print("PASS: 29 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor, iCloud sync protocol")
+        try suite.testDrinkSyncFilesystemAndOutbox()
+        print("PASS: 30 groups — schedule, weekend, pause/goal, snooze, totals/persistence, validation, milestones, undo/replay, wave settings, wave opacity, fish count, color picker, wave variation, water motion, fish interaction, fish pace, fish leap rules, triple-tap leap, fish leap arc, fish perspective, fish weave, fish rest/peck, daily card, history, export, welcome, settings close, popover anchor, iCloud sync protocol, iCloud filesystem")
     }
     var calendar: Calendar {
         var value = Calendar(identifier: .gregorian)
@@ -118,6 +119,8 @@ final class ReminderTests {
         """
         var legacy = try JSONDecoder().decode(Preferences.self, from: Data(oldJSON.utf8))
         XCTAssertEqual(legacy.waveAppearance ?? WaveAppearance(), WaveAppearance())
+        XCTAssertFalse(legacy.iCloudSyncEnabled ?? false)
+        legacy.iCloudSyncEnabled = true
         var appearance = WaveAppearance()
         appearance.height = 7
         appearance.speed = 1.5
@@ -127,6 +130,7 @@ final class ReminderTests {
         XCTAssertTrue(legacy.isValid)
         let restored = try JSONDecoder().decode(Preferences.self, from: JSONEncoder().encode(legacy))
         XCTAssertEqual(restored.waveAppearance, appearance)
+        XCTAssertTrue(restored.iCloudSyncEnabled ?? false)
         appearance.frontHex = "#XYZ123"
         legacy.waveAppearance = appearance
         XCTAssertFalse(legacy.isValid)
@@ -440,5 +444,60 @@ final class ReminderTests {
             _ = try DrinkSyncEvent.decode(Data("{not-json}".utf8))
             preconditionFailure("Expected malformed JSON to be rejected")
         } catch {}
+    }
+
+    func testDrinkSyncFilesystemAndOutbox() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let outbox = root.appendingPathComponent("outbox")
+        let cloud = root.appendingPathComponent("cloud")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storage = DrinkSyncFilesystem(outboxDirectory: outbox, syncDirectory: cloud)
+
+        let first = Drink(id: UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!,
+                          date: date(23, 9), grams: 197)
+        try storage.enqueueMissing(drinks: [first], source: "mac")
+        try storage.enqueueMissing(drinks: [first], source: "mac")
+        XCTAssertEqual(try storage.loadEvents().filter { $0.kind == .drink }.count, 1)
+        try storage.flushOutbox()
+        XCTAssertEqual(try storage.loadEvents().filter { $0.kind == .drink }.count, 1)
+
+        try Data("{broken}".utf8).write(to: cloud.appendingPathComponent("broken.json"))
+        XCTAssertEqual(try storage.loadEvents().filter { $0.kind == .drink }.count, 1)
+
+        let deleted = try DrinkSyncEvent(
+            id: UUID(), kind: .delete, recordID: first.id,
+            timestamp: date(23, 10), milliliters: nil, source: "mac"
+        )
+        try storage.enqueue(deleted)
+        XCTAssertEqual(DrinkSyncMerge.apply(events: try storage.loadEvents(), to: [first]).count, 0)
+
+        try storage.publishSettings(goal: 1800, serving: 197)
+        let settings = try JSONDecoder().decode(
+            DrinkSyncSettings.self,
+            from: Data(contentsOf: cloud.appendingPathComponent("settings.json"))
+        )
+        XCTAssertEqual(settings.goal, 1800)
+        XCTAssertEqual(settings.serving, 197)
+
+        let blockedRoot = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: blockedRoot) }
+        try Data("not-a-directory".utf8).write(to: blockedRoot)
+        let offline = DrinkSyncFilesystem(
+            outboxDirectory: root.appendingPathComponent("offline-outbox"),
+            syncDirectory: blockedRoot.appendingPathComponent("cloud")
+        )
+        let pending = try DrinkSyncEvent(
+            id: UUID(), kind: .drink, recordID: UUID(),
+            timestamp: date(23, 12), milliliters: 250, source: "mac"
+        )
+        try offline.enqueue(pending)
+        do {
+            try offline.flushOutbox()
+            preconditionFailure("Expected unavailable sync destination to fail")
+        } catch {}
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(
+            at: root.appendingPathComponent("offline-outbox"),
+            includingPropertiesForKeys: nil
+        ).filter { $0.pathExtension == "json" }.count, 1)
     }
 }

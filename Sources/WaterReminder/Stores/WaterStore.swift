@@ -22,8 +22,10 @@ final class WaterStore: ObservableObject {
     private var snoozedUntil: Date?
     private var file: URL
     private var storageReadable = true
+    private let drinkSync: ICloudDrinkSync
 
-    init() {
+    init(drinkSync: ICloudDrinkSync = .live()) {
+        self.drinkSync = drinkSync
         file = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("com.bobo.WaterReminder/state.json")
         do {
@@ -39,6 +41,7 @@ final class WaterStore: ObservableObject {
             storageReadable = false
             self.error = "无法读取已有数据，已停止写入以保护原文件。\(error.localizedDescription)"
         }
+        synchronizeDrinks()
         notifications.onDrink = { [weak self] id in self?.addDrink(notificationID: id) }
         notifications.onSnooze = { [weak self] in self?.snooze() }
         notifications.onError = { [weak self] in self?.error = $0 }
@@ -85,7 +88,8 @@ final class WaterStore: ObservableObject {
         if let notificationID, state.handledNotifications.contains(notificationID) { return }
         let previousTotal = total
         var changed = state
-        changed.drinks.append(Drink(grams: preferences.serving))
+        let drink = Drink(date: now, grams: preferences.serving)
+        changed.drinks.append(drink)
         let day = Calendar.current.dateComponents([.year, .month, .day], from: now)
         let dayKey = String(format: "%04d-%02d-%02d", day.year ?? 0, day.month ?? 0, day.day ?? 0)
         let storedCelebrations = changed.celebratedMilestones?[dayKey] ?? []
@@ -102,6 +106,8 @@ final class WaterStore: ObservableObject {
             changed.handledNotifications = Array(changed.handledNotifications.suffix(100))
         }
         guard save(changed) else { return }
+        queue(try? DrinkSyncEvent(kind: .drink, recordID: drink.id, timestamp: drink.date,
+                                  milliliters: drink.grams, source: "mac"))
         let milestone = crossed.max()
         feedback = DrinkFeedback(milestone: milestone)
         switch milestone {
@@ -126,7 +132,11 @@ final class WaterStore: ObservableObject {
             changed.celebratedMilestones?[dayKey] = Milestones.retained(
                 celebrated, at: remainingTotal, goal: preferences.goal)
         }
-        if save(changed) { notice = "已撤销本次记录"; reschedule() }
+        if save(changed) {
+            queue(try? DrinkSyncEvent(kind: .delete, recordID: drink.id, timestamp: now,
+                                      milliliters: nil, source: "mac"))
+            notice = "已撤销本次记录"; reschedule()
+        }
     }
 
     func update(_ preferences: Preferences) -> Bool {
@@ -134,6 +144,7 @@ final class WaterStore: ObservableObject {
         var changed = state
         changed.preferences = preferences
         guard save(changed) else { return false }
+        synchronizeDrinks()
         snoozedUntil = nil
         notifications.clear()
         reschedule()
@@ -169,7 +180,7 @@ final class WaterStore: ObservableObject {
     private func tick() {
         let previous = now
         now = Date()
-        defer { lastTick = now }
+        defer { lastTick = now; synchronizeDrinks() }
         if !Calendar.current.isDate(previous, inSameDayAs: now) || now.timeIntervalSince(lastTick) > 60 || now < lastTick {
             snoozedUntil = nil; notice = nil; notifications.clear(); reschedule(); return
         }
@@ -177,6 +188,32 @@ final class WaterStore: ObservableObject {
             notifications.send(serving: preferences.serving, total: total, goal: preferences.goal)
             snoozedUntil = nil
             reschedule()
+        }
+    }
+
+    private var syncEnabled: Bool { state.preferences.iCloudSyncEnabled ?? false }
+
+    private func queue(_ event: DrinkSyncEvent?) {
+        guard syncEnabled, let event else { return }
+        try? drinkSync.enqueue(event)
+        try? drinkSync.flushOutbox()
+    }
+
+    private func synchronizeDrinks() {
+        guard storageReadable, syncEnabled else { return }
+        do {
+            try drinkSync.enqueueMissing(drinks: state.drinks)
+            try? drinkSync.flushOutbox()
+            let merged = DrinkSyncMerge.apply(events: try drinkSync.loadEvents(), to: state.drinks)
+            if merged != state.drinks {
+                var changed = state
+                changed.drinks = merged
+                _ = save(changed)
+            }
+            try? drinkSync.publishSettings(goal: preferences.goal, serving: preferences.serving)
+        } catch {
+            // iCloud may be temporarily unavailable. The local state remains authoritative
+            // and pending events stay in the outbox for the next tick.
         }
     }
 }

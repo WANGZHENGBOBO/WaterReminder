@@ -58,6 +58,8 @@ public struct Preferences: Codable, Equatable {
     public var stopAtGoal = true
     // Optional so pre-wave settings decode without migration.
     public var waveAppearance: WaveAppearance?
+    // Optional so existing local-only settings remain readable and opt out by default.
+    public var iCloudSyncEnabled: Bool?
     public init() {}
     public var isValid: Bool {
         weekday.isValid && weekend.isValid && (1...2000).contains(serving)
