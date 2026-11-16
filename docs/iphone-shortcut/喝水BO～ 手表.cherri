@@ -1,0 +1,19 @@
+#define name 喝水BO～ 手表
+#define color blue
+#define glyph watch
+#define version 26
+#define from watch
+#define mac false
+
+#include 'actions/shortcuts'
+#include 'actions/text'
+
+@amountInput = prompt("这次喝了多少 ml？", "Number", "197")
+@amountText = getText(@amountInput)
+@amount = getNumbers(@amountText)
+if @amount < 1 || @amount > 2000 {
+    alert("请输入 1～2000ml", "水量不正确")
+    stop()
+}
+@payload = "drink:{@amount}"
+run("喝水BO～", @payload)
