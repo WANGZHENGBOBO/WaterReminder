@@ -20,6 +20,28 @@ def strings(value: Any) -> Iterable[str]:
         yield value
 
 
+def assigned_names(actions: list[dict[str, Any]]) -> set[str]:
+    return {
+        action.get("WFWorkflowActionParameters", {}).get("WFVariableName")
+        for action in actions
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.setvariable"
+    }
+
+
+def conditional_strings(value: Any) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, dict):
+        candidate = value.get("WFConditionalActionString")
+        if isinstance(candidate, str):
+            found.add(candidate)
+        for child in value.values():
+            found.update(conditional_strings(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.update(conditional_strings(child))
+    return found
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print(f"usage: {sys.argv[0]} SHORTCUT", file=sys.stderr)
@@ -32,10 +54,16 @@ def main() -> int:
     all_text = "\n".join(strings(actions))
     failures: list[str] = []
 
+    workflow_types = document.get("WFWorkflowTypes", [])
+    if "Watch" in workflow_types:
+        failures.append("executor must not be exposed directly on Apple Watch")
     if document.get("WFWorkflowHasShortcutInputVariables") is not True:
         failures.append("shortcut input variable is not enabled")
-    if "drink" not in all_text:
-        failures.append("watch drink command kind is missing")
+    for variable in ("watchInputPresent", "watchAmount", "watchCleanAmount"):
+        if variable not in assigned_names(actions):
+            failures.append(f"watch input variable is missing: {variable}")
+    if "drink" not in conditional_strings(actions):
+        failures.append("watch drink command branch is missing")
     if "无法识别手表输入" not in all_text:
         failures.append("invalid watch input guidance is missing")
     for label in ("喝了 197ml", "自定义水量", "查看今日记录"):

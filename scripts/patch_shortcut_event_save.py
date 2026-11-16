@@ -48,5 +48,10 @@ for action in actions:
     ):
         parameters["WFShowError"] = False
 
+# The executor delegates Watch launches to the thin watch launcher. Keeping the
+# executor off watch surfaces prevents users from running the iCloud file actions
+# directly on watchOS and hitting remote-execution errors.
+document["WFWorkflowTypes"] = ["WFWorkflowTypeShowInSearch"]
+
 with shortcut_path.open("wb") as shortcut_file:
     plistlib.dump(document, shortcut_file, fmt=plistlib.FMT_BINARY, sort_keys=False)
