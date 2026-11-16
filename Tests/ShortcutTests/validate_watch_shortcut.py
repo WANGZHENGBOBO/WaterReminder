@@ -74,6 +74,8 @@ def main() -> int:
     identifiers = {
         action.get("WFWorkflowActionIdentifier") for action in actions
     }
+    if "is.workflow.actions.round" not in identifiers:
+        failures.append("watch amount must be rounded to an integer")
     for identifier in sorted(DISALLOWED_ACTIONS & identifiers):
         failures.append(f"watch launcher contains unsupported action: {identifier}")
     if "drink:" not in all_text:

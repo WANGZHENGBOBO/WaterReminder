@@ -7,10 +7,14 @@
 
 #include 'actions/shortcuts'
 #include 'actions/text'
+#include 'actions/math'
 
 @amountInput = prompt("这次喝了多少 ml？", "Number", "197")
 @amountText = getText(@amountInput)
-@amount = getNumbers(@amountText)
+const amountNumber = getNumbers(@amountText)
+const roundedAmount = round(amountNumber)
+@roundedText = getText(roundedAmount)
+@amount = getNumbers(@roundedText)
 if @amount < 1 || @amount > 2000 {
     alert("请输入 1～2000ml", "水量不正确")
     stop()
