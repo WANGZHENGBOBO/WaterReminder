@@ -31,6 +31,7 @@ build_app() {
   cp Resources/Info.plist "$app/Contents/Info.plist"
   cp Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
   cp "Resources/喝水BO～.shortcut" "$app/Contents/Resources/喝水BO～.shortcut"
+  cp "Resources/喝水BO～ 手表.shortcut" "$app/Contents/Resources/喝水BO～ 手表.shortcut"
   xattr -cr "$app"
   codesign --force --sign - "$app"
   codesign --verify --deep --strict "$app"
@@ -64,8 +65,12 @@ cp "$ROOT_DIR/dist/喝水BO～-AppleSilicon.dmg" "$SHARE_DIR/"
 cp "$ROOT_DIR/dist/喝水BO～-Intel.dmg" "$SHARE_DIR/"
 cp "docs/iphone-shortcut/喝水BO～.shortcut" \
   "$ROOT_DIR/dist/喝水BO～-iPhone-$VERSION.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 手表.shortcut" \
+  "$ROOT_DIR/dist/喝水BO～-Watch-$VERSION.shortcut"
 cp "docs/iphone-shortcut/喝水BO～.shortcut" \
   "$SHARE_DIR/喝水BO～ $VERSION.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 手表.shortcut" \
+  "$SHARE_DIR/喝水BO～ 手表 $VERSION.shortcut"
 cp "docs/安装与使用说明.txt" "$ROOT_DIR/dist/安装与使用说明.txt"
 cp "docs/安装与使用说明.txt" "$SHARE_DIR/安装与使用说明.txt"
 cp "docs/发给朋友.txt" "$SHARE_DIR/发给朋友.txt"

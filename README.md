@@ -6,13 +6,13 @@
 
 它不要求注册，不收集用户数据。记录默认只保存在本机；主动开启 iPhone 同步后，也只经过你自己的 iCloud Drive，以及同一 Wi‑Fi 下的局域网直连。
 
-当前版本：`1.2.2` · 支持 macOS 13 Ventura 或更新版本 · Apple 芯片与 Intel Mac 均可使用
+当前版本：`1.2.3` · 支持 macOS 13 Ventura 或更新版本 · Apple 芯片与 Intel Mac 均可使用
 
 ## 现在长这样
 
 整张蓝色卡片就是今天的水量。喝得越多，水面升得越高；菜单栏上的水滴会同步显示完成百分比。默认目标是 `1800ml`，每次记录 `197ml`，都可以按自己的杯子修改。
 
-全新安装会在欢迎页提供“发送最新快捷指令”。Mac 和 iPhone 登录同一个 Apple ID，发送一次快捷指令文件，之后不用在 Mac 前，也能随手记录喝水。
+全新安装会在欢迎页提供 iPhone 版与手表版快捷指令。手表入口默认 197ml，可以直接确认或滚动改数字；实际记录仍交给 iPhone，再通过 Wi‑Fi 或 iCloud 与 Mac 同步。
 
 ## 黑曜石主题
 
@@ -37,6 +37,7 @@
 - 按任意日期范围导出 CSV，保留时间、水量、来源设备和次数。
 - 达到当天目标后自动停止提醒，也可以关闭这个选项。
 - 可选配 iPhone 快捷指令，用 `197ml／自定义水量／查看今日记录` 三种操作完成日常使用。
+- 可选配 Apple Watch 入口：打开就是 197ml，可直接确认或调整数字，不用在手表上读写 iCloud。
 - 同一 Wi‑Fi 下优先通过局域网把手机记录发给 Mac，通常一两秒内更新；局域网不可用时仍由 iCloud 补齐。
 - 多台 Mac 可以同时记录，历史里用 `M1`、`M2`、`iPH` 区分来源；电脑后缀可以改成 `OFFICE`、`HOME` 或 `MBP`。
 - 支持经典蓝与黑曜石两种界面主题，并可调整小鱼数量、水波颜色、透明度、起伏和流动速度。
@@ -64,10 +65,12 @@ iPhone 快捷指令把每次喝水保存成一条独立事件，Mac 会按记录
 ## 快速开始
 
 1. Mac App 不会出现在 Dock 里。打开后看屏幕顶部的菜单栏，点击水滴图标开始使用。
-2. 全新安装默认开启 iCloud 同步与局域网加速。在欢迎页点“发送最新快捷指令”，把随 App 提供的文件发送到 iPhone 并打开。
-3. 第一次运行时，iOS 会询问是否允许快捷指令访问 iCloud 中的「快捷指令」文件夹，点“始终允许”。它只用于读写喝水记录。
-4. 同一 Wi‑Fi 下首次使用，macOS 还可能询问是否允许局域网访问。允许后手机记录才能走快速通道；拒绝也不影响 iCloud 同步。
-5. 点击菜单栏水滴，可以开启通知、记录喝水、查看今天喝了几次、暂停提醒或进入设置。
+2. 全新安装默认开启 iCloud 同步与局域网加速。在欢迎页分别发送“iPhone 版”和“手表版”两个快捷指令文件。
+3. 第一次运行时，iOS 会询问是否允许 iPhone 版访问 iCloud 中的「快捷指令」文件夹，点“始终允许”。它只用于读写喝水记录。
+4. 手表上只显示“喝水BO～ 手表”。打开后默认 197ml，直接确认；需要其他水量时调整数字再确认。
+5. 在 iPhone 版快捷指令的“详情 → 隐私”中开启“允许在锁定时运行”，iPhone 放在口袋里也能处理手表传来的水量。
+6. 同一 Wi‑Fi 下首次使用，macOS 还可能询问是否允许局域网访问。允许后手机记录才能走快速通道；拒绝也不影响 iCloud 同步。
+7. 点击菜单栏水滴，可以开启通知、记录喝水、查看今天喝了几次、暂停提醒或进入设置。
 
 给朋友安装时，可以直接发送[安装与使用说明](docs/安装与使用说明.txt)。Apple 芯片和 Intel 芯片各有一个 DMG，安装时按电脑芯片选择。
 
@@ -87,11 +90,11 @@ iPhone 快捷指令把每次喝水保存成一条独立事件，Mac 会按记录
 
 Mac 旧版本升级时仍会保留原来的同步开关，不会自动上传已有本地记录。全新安装则默认开启 iCloud 同步和局域网加速。
 
-iPhone 快捷指令的详细说明见 [docs/iphone-shortcut/README.md](docs/iphone-shortcut/README.md)。也可以通过[这个 iCloud 链接](https://www.icloud.com/shortcuts/ff34db7a41f04ca9955fe4f678e4d1d2)添加。Mac 应用和快捷指令请成对更新，旧版快捷指令可能重复统计、覆盖待同步水量或写入空记录。
+iPhone 与手表快捷指令的详细说明见 [docs/iphone-shortcut/README.md](docs/iphone-shortcut/README.md)。请以 App 欢迎页随附的两个文件为准；旧 iCloud 链接不包含新的手表入口。Mac 应用和快捷指令请成对更新，旧版快捷指令可能重复统计、覆盖待同步水量或写入空记录。
 
 ## 当前版本更新
 
-`1.2.2` 调整了 iPhone 快捷指令的执行顺序：菜单立即出现，喝水记录先完成局域网同步，再显示一次不阻塞的进度通知，不再要求关闭结果页后才发送到电脑。Mac 提醒也会在 3 秒后自动从通知中心移除。
+`1.2.3` 新增 Apple Watch 快捷指令入口：手表默认 197ml，可直接确认或调整数字；随后由 iPhone 完成 iCloud 事件保存和局域网同步。原 iPhone 菜单保持不变。
 
 手机端需要安装同一版本随附的快捷指令。README 中的界面截图来自 1.2.1。
 
@@ -121,6 +124,14 @@ cherri "docs/iphone-shortcut/喝水BO～.cherri" --skip-sign
 python3 scripts/patch_shortcut_event_save.py "docs/iphone-shortcut/喝水BO～_unsigned.shortcut"
 bash Tests/ShortcutTests/validate_shortcut.sh "docs/iphone-shortcut/喝水BO～_unsigned.shortcut"
 cherri "docs/iphone-shortcut/喝水BO～.cherri" --share=anyone --hubsign
+```
+
+手表入口源码位于 `docs/iphone-shortcut/喝水BO～ 手表.cherri`，验证：
+
+```sh
+cherri "docs/iphone-shortcut/喝水BO～ 手表.cherri" --skip-sign
+python3 Tests/ShortcutTests/validate_watch_shortcut.py \
+  "docs/iphone-shortcut/喝水BO～ 手表_unsigned.shortcut"
 ```
 
 ## Intel Mac 版本

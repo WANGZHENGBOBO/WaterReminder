@@ -15,6 +15,7 @@ cp "$BUILD_DIR/WaterReminder" "$APP_BUNDLE/Contents/MacOS/WaterReminder"
 cp Resources/Info.plist "$APP_BUNDLE/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 cp Resources/喝水BO～.shortcut "$APP_BUNDLE/Contents/Resources/喝水BO～.shortcut"
+cp "Resources/喝水BO～ 手表.shortcut" "$APP_BUNDLE/Contents/Resources/喝水BO～ 手表.shortcut"
 xattr -cr "$APP_BUNDLE"
 codesign --force --sign - "$APP_BUNDLE"
 case "$MODE" in

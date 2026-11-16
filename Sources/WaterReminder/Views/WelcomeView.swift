@@ -114,27 +114,27 @@ struct WelcomeView: View {
     private var pairingPanel: some View {
         VStack(spacing: 13) {
             VStack(spacing: 4) {
-                Text("用 iPhone 添加").font(.headline)
-                Text("Mac 与 iPhone 使用同一个 Apple ID")
+                Text("用 iPhone 安装两个捷径").font(.headline)
+                Text("手表只负责水量，记录仍由 iPhone 完成")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Image(systemName: "iphone.gen3")
+            Image(systemName: "applewatch")
                 .font(.system(size: 38))
                 .foregroundStyle(theme.accentBright)
                 .frame(maxWidth: .infinity)
                 .frame(height: 96)
                 .background(theme.surface.opacity(0.6),
                             in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            Text("点击下面的按钮，把随 App 提供的最新快捷指令发送到 iPhone。")
+            Text("先发送 iPhone 版，再发送手表版。手表版默认 197ml，可以直接改数字。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
             if let shortcutURL {
                 ShareLink(item: shortcutURL) {
-                    Label("发送最新快捷指令", systemImage: "square.and.arrow.up")
+                    Label("发送 iPhone 版", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -145,8 +145,21 @@ struct WelcomeView: View {
                     .foregroundStyle(.red)
             }
 
-            Text("在 iPhone 上打开收到的文件，选择“替换快捷指令”或“添加快捷指令”。")
+            if let watchShortcutURL {
+                ShareLink(item: watchShortcutURL) {
+                    Label("发送手表版", systemImage: "applewatch")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+
+            Text("在 iPhone 上分别打开两个文件。保留「喝水BO～」，手表上只显示「喝水BO～ 手表」。")
                 .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Text("在「喝水BO～」的详情 → 隐私中开启“允许在锁定时运行”，这样 iPhone 放在口袋里也能处理手表水量。")
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -198,5 +211,9 @@ struct WelcomeView: View {
 
     private var shortcutURL: URL? {
         Bundle.main.url(forResource: "喝水BO～", withExtension: "shortcut")
+    }
+
+    private var watchShortcutURL: URL? {
+        Bundle.main.url(forResource: "喝水BO～ 手表", withExtension: "shortcut")
     }
 }
