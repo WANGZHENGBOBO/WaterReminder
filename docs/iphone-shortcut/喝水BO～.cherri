@@ -12,11 +12,41 @@
 #include 'actions/web'
 
 @today = formatDate(CurrentDate, "Custom", "yyyy-MM-dd")
-@menuItems = list("喝了 197ml", "自定义水量", "查看今日记录")
-@choice = chooseFromList(@menuItems, "喝水BO～")
-@choiceText = "{@choice}"
 
-if @choiceText == "查看今日记录" {
+@shortcutInputText = "{ShortcutInput}"
+@watchAmount = 0
+@watchInputPresent = false
+if @shortcutInputText {
+    @watchInputParts = splitText(@shortcutInputText, ":")
+    @watchInputPartCount = count(@watchInputParts)
+    if @watchInputPartCount == 2 {
+        @watchKindField = getListItem(@watchInputParts, 1)
+        @watchAmountField = getListItem(@watchInputParts, 2)
+        @watchKindText = getText(@watchKindField)
+        @watchAmountText = getText(@watchAmountField)
+        @watchKind = trimWhitespace(@watchKindText)
+        @watchCleanAmount = trimWhitespace(@watchAmountText)
+        if @watchKind == "drink" {
+            @watchAmount = getNumbers(@watchCleanAmount)
+            if @watchAmount >= 1 && @watchAmount <= 2000 {
+                @watchInputPresent = true
+            }
+        }
+    }
+    if !@watchInputPresent {
+        alert("无法识别手表输入，请重新运行。", "水量不正确")
+        stop()
+    }
+}
+
+@menuItems = list("喝了 197ml", "自定义水量", "查看今日记录")
+@choiceText = ""
+if !@watchInputPresent {
+    @choice = chooseFromList(@menuItems, "喝水BO～")
+    @choiceText = "{@choice}"
+}
+
+if !@watchInputPresent && @choiceText == "查看今日记录" {
     @viewGoal = 1800
     @viewBaseTotal = 0
     @viewSummaryCursor = 0
@@ -225,7 +255,10 @@ if @choiceText == "查看今日记录" {
 }
 
 @amount = 197
-if @choiceText == "自定义水量" {
+if @watchInputPresent {
+    @amount = @watchAmount
+}
+if !@watchInputPresent && @choiceText == "自定义水量" {
     @amount = prompt("这次喝了多少 ml？", "Number")
 }
 if @amount < 1 || @amount > 2000 {

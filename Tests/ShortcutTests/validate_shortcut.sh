@@ -25,5 +25,6 @@ fi
 python3 "$(dirname "$0")/validate_event_save.py" "$shortcut_path"
 python3 "$(dirname "$0")/validate_lan_sync.py" "$shortcut_path"
 python3 "$(dirname "$0")/validate_fast_feedback.py" "$shortcut_path"
+python3 "$(dirname "$0")/validate_watch_bridge.py" "$shortcut_path"
 
 echo "PASS: Shortcut reads summary, uses shared CSV, and has the three requested actions"
