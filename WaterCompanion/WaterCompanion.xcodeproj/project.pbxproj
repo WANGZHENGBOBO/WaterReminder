@@ -1,0 +1,474 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D00100000000000000000001 /* WatchDrinkPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000001 /* WatchDrinkPayload.swift */; };
+		D00100000000000000000002 /* PhoneDrinkEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000002 /* PhoneDrinkEvent.swift */; };
+		D00100000000000000000003 /* PendingEventQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000003 /* PendingEventQueue.swift */; };
+		D00100000000000000000004 /* PendingEventStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000004 /* PendingEventStorage.swift */; };
+		D00100000000000000000005 /* CompanionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000005 /* CompanionSettings.swift */; };
+		D00100000000000000000010 /* WaterCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000010 /* WaterCompanionApp.swift */; };
+		D00100000000000000000011 /* PhoneSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000011 /* PhoneSession.swift */; };
+		D00100000000000000000012 /* PhoneContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000012 /* PhoneContentView.swift */; };
+		D00100000000000000000013 /* FolderAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000013 /* FolderAccess.swift */; };
+		D00100000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000015 /* Assets.xcassets */; };
+		D00100000000000000000015 /* CompanionNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000016 /* CompanionNotificationService.swift */; };
+		D00200000000000000000001 /* WatchDrinkPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000001 /* WatchDrinkPayload.swift */; };
+		D00200000000000000000002 /* PhoneDrinkEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000002 /* PhoneDrinkEvent.swift */; };
+		D00200000000000000000003 /* PendingEventQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000003 /* PendingEventQueue.swift */; };
+		D00200000000000000000004 /* PendingEventStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000004 /* PendingEventStorage.swift */; };
+		D00200000000000000000005 /* CompanionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000005 /* CompanionSettings.swift */; };
+		D00200000000000000000020 /* WaterCompanionWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000020 /* WaterCompanionWatchApp.swift */; };
+		D00200000000000000000021 /* WatchSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000021 /* WatchSession.swift */; };
+		D00200000000000000000022 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000022 /* WatchContentView.swift */; };
+		D00200000000000000000023 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000024 /* Assets.xcassets */; };
+		D04000000000000000000001 /* WaterCompanion Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B00200000000000000000001 /* WaterCompanion Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		H00100000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = P00100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E00200000000000000000001;
+			remoteInfo = "WaterCompanion Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F00400000000000000000001 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				D04000000000000000000001 /* WaterCompanion Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A00100000000000000000001 /* WatchDrinkPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDrinkPayload.swift; sourceTree = "<group>"; };
+		A00100000000000000000002 /* PhoneDrinkEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDrinkEvent.swift; sourceTree = "<group>"; };
+		A00100000000000000000003 /* PendingEventQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingEventQueue.swift; sourceTree = "<group>"; };
+		A00100000000000000000004 /* PendingEventStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingEventStorage.swift; sourceTree = "<group>"; };
+		A00100000000000000000005 /* CompanionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionSettings.swift; sourceTree = "<group>"; };
+		A00100000000000000000010 /* WaterCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterCompanionApp.swift; sourceTree = "<group>"; };
+		A00100000000000000000011 /* PhoneSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSession.swift; sourceTree = "<group>"; };
+		A00100000000000000000012 /* PhoneContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneContentView.swift; sourceTree = "<group>"; };
+		A00100000000000000000013 /* FolderAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderAccess.swift; sourceTree = "<group>"; };
+		A00100000000000000000014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00100000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00100000000000000000016 /* CompanionNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionNotificationService.swift; sourceTree = "<group>"; };
+		A00100000000000000000020 /* WaterCompanionWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterCompanionWatchApp.swift; sourceTree = "<group>"; };
+		A00100000000000000000021 /* WatchSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSession.swift; sourceTree = "<group>"; };
+		A00100000000000000000022 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchContentView.swift; sourceTree = "<group>"; };
+		A00100000000000000000023 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00100000000000000000024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B00100000000000000000001 /* WaterCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WaterCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00200000000000000000001 /* WaterCompanion Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WaterCompanion Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F00300000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F02200000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C00100000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				C00200000000000000000001 /* WaterCompanion */,
+				C00600000000000000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C00200000000000000000001 /* WaterCompanion */ = {
+			isa = PBXGroup;
+			children = (
+				C00300000000000000000001 /* Shared */,
+				C00400000000000000000001 /* iOS */,
+				C00500000000000000000001 /* Watch */,
+			);
+			path = .;
+			sourceTree = "<group>";
+		};
+		C00300000000000000000001 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A00100000000000000000001 /* WatchDrinkPayload.swift */,
+				A00100000000000000000002 /* PhoneDrinkEvent.swift */,
+				A00100000000000000000003 /* PendingEventQueue.swift */,
+				A00100000000000000000004 /* PendingEventStorage.swift */,
+				A00100000000000000000005 /* CompanionSettings.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		C00400000000000000000001 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A00100000000000000000010 /* WaterCompanionApp.swift */,
+				A00100000000000000000011 /* PhoneSession.swift */,
+				A00100000000000000000012 /* PhoneContentView.swift */,
+				A00100000000000000000013 /* FolderAccess.swift */,
+				A00100000000000000000016 /* CompanionNotificationService.swift */,
+				A00100000000000000000014 /* Info.plist */,
+				A00100000000000000000015 /* Assets.xcassets */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		C00500000000000000000001 /* Watch */ = {
+			isa = PBXGroup;
+			children = (
+				A00100000000000000000020 /* WaterCompanionWatchApp.swift */,
+				A00100000000000000000021 /* WatchSession.swift */,
+				A00100000000000000000022 /* WatchContentView.swift */,
+				A00100000000000000000023 /* Info.plist */,
+				A00100000000000000000024 /* Assets.xcassets */,
+			);
+			path = Watch;
+			sourceTree = "<group>";
+		};
+		C00600000000000000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B00100000000000000000001 /* WaterCompanion.app */,
+				B00200000000000000000001 /* WaterCompanion Watch App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E00100000000000000000001 /* WaterCompanion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = I01000000000000000000001 /* Build configuration list for PBXNativeTarget "WaterCompanion" */;
+			buildPhases = (
+				F00100000000000000000001 /* Sources */,
+				F00300000000000000000001 /* Frameworks */,
+				F00200000000000000000001 /* Resources */,
+				F00400000000000000000001 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				G00100000000000000000001 /* PBXTargetDependency */,
+			);
+			name = WaterCompanion;
+			productName = WaterCompanion;
+			productReference = B00100000000000000000001 /* WaterCompanion.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E00200000000000000000001 /* WaterCompanion Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = I02000000000000000000001 /* Build configuration list for PBXNativeTarget "WaterCompanion Watch App" */;
+			buildPhases = (
+				F02000000000000000000001 /* Sources */,
+				F02200000000000000000001 /* Frameworks */,
+				F02100000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "WaterCompanion Watch App";
+			productName = "WaterCompanion Watch App";
+			productReference = B00200000000000000000001 /* WaterCompanion Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		P00100000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2720;
+				LastUpgradeCheck = 2720;
+				TargetAttributes = {
+					E00100000000000000000001 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					E00200000000000000000001 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+				};
+			};
+			buildConfigurationList = I00100000000000000000001 /* Build configuration list for PBXProject "WaterCompanion" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = C00100000000000000000001;
+			productRefGroup = C00600000000000000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E00100000000000000000001 /* WaterCompanion */,
+				E00200000000000000000001 /* WaterCompanion Watch App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F00200000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00100000000000000000014 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F02100000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00200000000000000000023 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F00100000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00100000000000000000001 /* WatchDrinkPayload.swift in Sources */,
+				D00100000000000000000002 /* PhoneDrinkEvent.swift in Sources */,
+				D00100000000000000000003 /* PendingEventQueue.swift in Sources */,
+				D00100000000000000000004 /* PendingEventStorage.swift in Sources */,
+				D00100000000000000000005 /* CompanionSettings.swift in Sources */,
+				D00100000000000000000010 /* WaterCompanionApp.swift in Sources */,
+				D00100000000000000000011 /* PhoneSession.swift in Sources */,
+				D00100000000000000000012 /* PhoneContentView.swift in Sources */,
+				D00100000000000000000013 /* FolderAccess.swift in Sources */,
+				D00100000000000000000015 /* CompanionNotificationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F02000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00200000000000000000001 /* WatchDrinkPayload.swift in Sources */,
+				D00200000000000000000002 /* PhoneDrinkEvent.swift in Sources */,
+				D00200000000000000000003 /* PendingEventQueue.swift in Sources */,
+				D00200000000000000000004 /* PendingEventStorage.swift in Sources */,
+				D00200000000000000000005 /* CompanionSettings.swift in Sources */,
+				D00200000000000000000020 /* WaterCompanionWatchApp.swift in Sources */,
+				D00200000000000000000021 /* WatchSession.swift in Sources */,
+				D00200000000000000000022 /* WatchContentView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		G00100000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E00200000000000000000001 /* WaterCompanion Watch App */;
+			targetProxy = H00100000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		J00100000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		J00100000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		J01000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P44Y8FQX94;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobo.WaterCompanion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		J01000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P44Y8FQX94;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobo.WaterCompanion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		J02000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P44Y8FQX94;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Watch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobo.WaterCompanion.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		J02000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P44Y8FQX94;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Watch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobo.WaterCompanion.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		I00100000000000000000001 /* Build configuration list for PBXProject "WaterCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				J00100000000000000000001 /* Debug */,
+				J00100000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		I01000000000000000000001 /* Build configuration list for PBXNativeTarget "WaterCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				J01000000000000000000001 /* Debug */,
+				J01000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		I02000000000000000000001 /* Build configuration list for PBXNativeTarget "WaterCompanion Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				J02000000000000000000001 /* Debug */,
+				J02000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = P00100000000000000000001 /* Project object */;
+}

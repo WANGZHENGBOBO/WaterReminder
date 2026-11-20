@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the thin Apple Watch amount launcher."""
+"""Validate the thin Apple Watch-to-iPhone message bridge."""
 
 from __future__ import annotations
 
@@ -10,11 +10,11 @@ from typing import Any, Iterable
 
 
 DISALLOWED_ACTIONS = {
-    "is.workflow.actions.choosefromlist",
     "is.workflow.actions.documentpicker.open",
     "is.workflow.actions.documentpicker.save",
     "is.workflow.actions.downloadurl",
     "is.workflow.actions.file.getfoldercontents",
+    "is.workflow.actions.runworkflow",
 }
 
 
@@ -43,52 +43,58 @@ def main() -> int:
     if document.get("WFWorkflowTypes") != ["Watch"]:
         failures.append("shortcut must be exposed only as a Watch workflow")
 
-    prompt_actions = [
-        action for action in actions
+    prompts = [
+        action.get("WFWorkflowActionParameters", {})
+        for action in actions
         if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.ask"
     ]
-    if len(prompt_actions) != 1:
+    if len(prompts) != 1:
         failures.append("watch launcher must have exactly one number prompt")
-    else:
-        prompt = prompt_actions[0].get("WFWorkflowActionParameters", {})
-        if prompt.get("WFAskActionDefaultAnswer") != "197":
-            failures.append("watch prompt default must be the string 197")
-        if prompt.get("WFAskActionDefaultAnswerNumber") != "197":
-            failures.append("watch prompt numeric default must be 197")
-        if prompt.get("WFInputType") != "Number":
-            failures.append("watch prompt must use number input")
+    elif (
+        prompts[0].get("WFAskActionDefaultAnswer") != "197"
+        or prompts[0].get("WFAskActionDefaultAnswerNumber") != 197
+        or prompts[0].get("WFInputType") != "Number"
+    ):
+        failures.append("watch prompt must default to numeric 197")
 
-    run_actions = [
-        action for action in actions
-        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.runworkflow"
+    messages = [
+        action.get("WFWorkflowActionParameters", {})
+        for action in actions
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.sendmessage"
     ]
-    if len(run_actions) != 1:
-        failures.append("watch launcher must run exactly one Shortcut")
-    else:
-        run = run_actions[0].get("WFWorkflowActionParameters", {})
-        if run.get("WFWorkflowName") != "喝水BO～":
-            failures.append("watch launcher must target 喝水BO～")
-        if "payload" not in str(run.get("WFInput", "")):
-            failures.append("watch launcher must pass the payload to the executor")
+    if len(messages) != 1:
+        failures.append("watch launcher must send exactly one message")
+    elif "payload" not in str(messages[0].get("WFSendMessageContent", "")):
+        failures.append("watch message must send the generated payload")
+    if "drink:喝水BO～" not in all_text:
+        failures.append("watch payload must carry the drink command")
 
-    identifiers = {
-        action.get("WFWorkflowActionIdentifier") for action in actions
-    }
+    questions = document.get("WFWorkflowImportQuestions", [])
+    if len(questions) != 1:
+        failures.append("watch launcher must ask for the user's own Apple ID")
+    elif questions[0].get("ParameterKey") != "WFTextActionText":
+        failures.append("watch recipient question must bind to the Text action")
+    else:
+        question_text = str(questions[0].get("Text", ""))
+        if "Apple ID" not in question_text or "iMessage" not in question_text or "短信" not in question_text:
+            failures.append("watch recipient question must request an Apple ID for the iMessage-only setup")
+
+    identifiers = {action.get("WFWorkflowActionIdentifier") for action in actions}
+    if "is.workflow.actions.phonenumber" in identifiers:
+        failures.append("watch recipient must remain an Apple ID rather than a phone number")
+    if messages and "recipientText" not in str(
+        messages[0].get("WFSendMessageActionRecipients", "")
+    ):
+        failures.append("watch message must use the Apple ID text recipient")
     if "is.workflow.actions.round" not in identifiers:
-        failures.append("watch amount must be rounded to an integer")
+        failures.append("watch amount must be rounded")
     for identifier in sorted(DISALLOWED_ACTIONS & identifiers):
         failures.append(f"watch launcher contains unsupported action: {identifier}")
-    if "drink:" not in all_text:
-        failures.append("watch payload must use the drink:<ml> command")
-    if "查看今日记录" in all_text:
-        failures.append("watch launcher must not show today's records")
-
     if failures:
         for failure in failures:
             print(f"FAIL: {failure}", file=sys.stderr)
         return 1
-
-    print("PASS: Watch launcher defaults to 197ml and delegates to the iPhone executor")
+    print("PASS: Watch launcher prompts, rounds, and iMessages the Apple ID recipient")
     return 0
 
 

@@ -6,13 +6,13 @@
 
 它不要求注册，不收集用户数据。记录默认只保存在本机；主动开启 iPhone 同步后，也只经过你自己的 iCloud Drive，以及同一 Wi‑Fi 下的局域网直连。
 
-当前版本：`1.2.3` · 支持 macOS 13 Ventura 或更新版本 · Apple 芯片与 Intel Mac 均可使用
+当前版本：`1.2.4` · 支持 macOS 13 Ventura 或更新版本 · Apple 芯片与 Intel Mac 均可使用
 
 ## 现在长这样
 
 整张蓝色卡片就是今天的水量。喝得越多，水面升得越高；菜单栏上的水滴会同步显示完成百分比。默认目标是 `1800ml`，每次记录 `197ml`，都可以按自己的杯子修改。
 
-全新安装会在欢迎页提供 iPhone 版与手表版快捷指令。手表入口默认 197ml，可以直接确认或滚动改数字；实际记录仍交给 iPhone，再通过 Wi‑Fi 或 iCloud 与 Mac 同步。
+全新安装会在欢迎页提供三个快捷指令：手机手动记录、自动化接收、手表输入。手表通过 iMessage 给自己发一条消息通知 iPhone，接收器负责写入 iCloud，Mac 自动同步。
 
 ## 黑曜石主题
 
@@ -36,8 +36,8 @@
 - 查看当天的逐次记录；记错了可以撤销，并用日、周、月、年热力格回看趋势。
 - 按任意日期范围导出 CSV，保留时间、水量、来源设备和次数。
 - 达到当天目标后自动停止提醒，也可以关闭这个选项。
-- 可选配 iPhone 快捷指令，用 `197ml／自定义水量／查看今日记录` 三种操作完成日常使用。
-- 可选配 Apple Watch 入口：打开就是 197ml，可直接确认或调整数字，不用在手表上读写 iCloud。
+- 可选配 iPhone 快捷指令：打开就是 197ml，可直接确认或调整，提交后显示进度并自动关闭。
+- 可选配 Apple Watch 入口：输入水量后通过 iMessage 给自己发一条消息交给 iPhone 保存，不需要在手表上操作 iCloud。
 - 同一 Wi‑Fi 下优先通过局域网把手机记录发给 Mac，通常一两秒内更新；局域网不可用时仍由 iCloud 补齐。
 - 多台 Mac 可以同时记录，历史里用 `M1`、`M2`、`iPH` 区分来源；电脑后缀可以改成 `OFFICE`、`HOME` 或 `MBP`。
 - 支持经典蓝与黑曜石两种界面主题，并可调整小鱼数量、水波颜色、透明度、起伏和流动速度。
@@ -65,14 +65,42 @@ iPhone 快捷指令把每次喝水保存成一条独立事件，Mac 会按记录
 ## 快速开始
 
 1. Mac App 不会出现在 Dock 里。打开后看屏幕顶部的菜单栏，点击水滴图标开始使用。
-2. 全新安装默认开启 iCloud 同步与局域网加速。在欢迎页分别发送“iPhone 版”和“手表版”两个快捷指令文件。
-3. 第一次运行时，iOS 会询问是否允许 iPhone 版访问 iCloud 中的「快捷指令」文件夹，点“始终允许”。它只用于读写喝水记录。
-4. 手表上只显示“喝水BO～ 手表”。打开后默认 197ml，直接确认；需要其他水量时调整数字再确认。
-5. 在 iPhone 版快捷指令的“详情 → 隐私”中开启“允许在锁定时运行”，iPhone 放在口袋里也能处理手表传来的水量。
-6. 同一 Wi‑Fi 下首次使用，macOS 还可能询问是否允许局域网访问。允许后手机记录才能走快速通道；拒绝也不影响 iCloud 同步。
-7. 点击菜单栏水滴，可以开启通知、记录喝水、查看今天喝了几次、暂停提醒或进入设置。
+2. 全新安装默认开启 iCloud 同步与局域网加速。在欢迎页分别发送 iPhone 版、接收版和手表版快捷指令。
+3. 在 iPhone 上安装“喝水BO～”和“喝水BO～ 接收”；第一次运行“喝水BO～”时，iOS 会询问是否允许访问 iCloud 中的「快捷指令」文件夹，点“始终允许”。
+4. 在 iPhone 上打开“喝水BO～”，水量默认 197ml；直接确认，或改数字后确认。
+5. 在 iPhone 的“快捷指令 → 自动化”中新建“收到消息”：发件人为自己，消息包含“喝水BO～”，设为“立即运行”。执行“喝水BO～ 接收”，并在动作的输入里选择“快捷指令输入”。
+6. 在 iPhone 的“设置 → App → 信息”中关闭“以短信发送”；如果有“RCS 信息”，也关闭。
+7. 打开 `喝水BO～` 的详情，开启“允许在锁定时运行”。
+8. 在手表上只保留“喝水BO～ 手表”。它会把水量通过 iMessage 发给自己，再由 iPhone 完成记录。
+9. 同一 Wi‑Fi 下首次使用，macOS 还可能询问是否允许局域网访问。允许后手机记录才能走快速通道；拒绝也不影响 iCloud 同步。
+10. 点击菜单栏水滴，可以开启通知、记录喝水、查看今天喝了几次、暂停提醒或进入设置。
 
 给朋友安装时，可以直接发送[安装与使用说明](docs/安装与使用说明.txt)。Apple 芯片和 Intel 芯片各有一个 DMG，安装时按电脑芯片选择。
+
+## 分享给朋友
+
+运行 `bash script/build_release.sh` 后会生成完整分享包：
+
+`dist/喝水BO～-分享包.zip`
+
+包内包含：
+
+- `喝水BO～-AppleSilicon.dmg`：Apple 芯片 Mac。
+- `喝水BO～-Intel.dmg`：Intel Mac。
+- `喝水BO～.shortcut`：iPhone 主快捷指令。
+- `喝水BO～ 接收.shortcut`：自动化专用接收器，读取手表消息并写入 iCloud。
+- `喝水BO～ 手表.shortcut`：通用手表入口，安装时填写使用者自己的 Apple ID 邮箱。
+- `安装与使用说明.txt`：简体中文说明。
+- `安裝與使用說明-繁體.txt`：繁体中文说明。
+- `发给朋友.txt` 和 `分享包清单.txt`：可直接转发和核对内容。
+
+分享包不包含任何人的 Apple ID、手机号、联系人、喝水记录或个人定制快捷指令。`personal/` 目录中的个人邮箱版只在本机使用，不会被打进 App 或分享包。
+
+## iPhone / Apple Watch 配套 App（可选，当前不使用）
+
+仓库内保留一个私人配套 App，位于 `WaterCompanion/`。它不需要手机号或消息自动化：Apple Watch 通过 WatchConnectivity 将水量交给 iPhone，iPhone 再写入现有的 iCloud `Sync/Events` 文件夹。当前日常使用不走这条路线；只有以后需要脱离消息通道时才考虑安装。
+
+它不会上架 App Store，需要用 Xcode 和 Personal Team 安装到自己的设备。安装和验证步骤见 [WaterCompanion/README.md](WaterCompanion/README.md)。
 
 ## 数据与隐私
 
@@ -90,11 +118,11 @@ iPhone 快捷指令把每次喝水保存成一条独立事件，Mac 会按记录
 
 Mac 旧版本升级时仍会保留原来的同步开关，不会自动上传已有本地记录。全新安装则默认开启 iCloud 同步和局域网加速。
 
-iPhone 与手表快捷指令的详细说明见 [docs/iphone-shortcut/README.md](docs/iphone-shortcut/README.md)。请以 App 欢迎页随附的两个文件为准；旧 iCloud 链接不包含新的手表入口。Mac 应用和快捷指令请成对更新，旧版快捷指令可能重复统计、覆盖待同步水量或写入空记录。
+iPhone 与手表快捷指令的详细说明见 [docs/iphone-shortcut/README.md](docs/iphone-shortcut/README.md)。请以 App 欢迎页随附的两个文件为准。Mac 应用和快捷指令请成对更新，旧版快捷指令可能重复统计、覆盖待同步水量或写入空记录。
 
 ## 当前版本更新
 
-`1.2.3` 新增 Apple Watch 快捷指令入口：手表默认 197ml，可直接确认或调整数字；随后由 iPhone 完成 iCloud 事件保存和局域网同步。原 iPhone 菜单保持不变。
+`1.2.4` 修正了 iPhone 接收手表消息时的正文提取，自动化可以直接使用手表上的水量，不再退回 197ml 的手动输入框。手表通过 iMessage 自消息交给 iPhone，再由手机保存记录并显示自动消失的进度通知。
 
 手机端需要安装同一版本随附的快捷指令。README 中的界面截图来自 1.2.1。
 
@@ -122,16 +150,24 @@ iconutil -c icns Resources/AppIcon.iconset -o Resources/AppIcon.icns
 ```sh
 cherri "docs/iphone-shortcut/喝水BO～.cherri" --skip-sign
 python3 scripts/patch_shortcut_event_save.py "docs/iphone-shortcut/喝水BO～_unsigned.shortcut"
+python3 scripts/patch_shortcut_numbers.py "docs/iphone-shortcut/喝水BO～_unsigned.shortcut"
 bash Tests/ShortcutTests/validate_shortcut.sh "docs/iphone-shortcut/喝水BO～_unsigned.shortcut"
-cherri "docs/iphone-shortcut/喝水BO～.cherri" --share=anyone --hubsign
+/usr/bin/python3 scripts/sign_shortcut.py \
+  "docs/iphone-shortcut/喝水BO～_unsigned.shortcut" \
+  "docs/iphone-shortcut" "喝水BO～"
 ```
 
 手表入口源码位于 `docs/iphone-shortcut/喝水BO～ 手表.cherri`，验证：
 
 ```sh
 cherri "docs/iphone-shortcut/喝水BO～ 手表.cherri" --skip-sign
+python3 scripts/patch_shortcut_numbers.py \
+  "docs/iphone-shortcut/喝水BO～ 手表_unsigned.shortcut"
 python3 Tests/ShortcutTests/validate_watch_shortcut.py \
   "docs/iphone-shortcut/喝水BO～ 手表_unsigned.shortcut"
+/usr/bin/python3 scripts/sign_shortcut.py \
+  "docs/iphone-shortcut/喝水BO～ 手表_unsigned.shortcut" \
+  "docs/iphone-shortcut" "喝水BO～ 手表"
 ```
 
 ## Intel Mac 版本

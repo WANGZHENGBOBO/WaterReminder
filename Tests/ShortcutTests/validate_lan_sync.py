@@ -34,20 +34,6 @@ def strings(value: Any) -> Iterable[str]:
         yield value
 
 
-def conditional_strings(value: Any) -> set[str]:
-    found: set[str] = set()
-    if isinstance(value, dict):
-        candidate = value.get("WFConditionalActionString")
-        if isinstance(candidate, str):
-            found.add(candidate)
-        for child in value.values():
-            found.update(conditional_strings(child))
-    elif isinstance(value, list):
-        for child in value:
-            found.update(conditional_strings(child))
-    return found
-
-
 def action_parameters(actions: list[dict[str, Any]], identifier: str) -> list[dict[str, Any]]:
     return [
         action.get("WFWorkflowActionParameters", {})
@@ -92,14 +78,9 @@ def main() -> int:
         failures.append(
             "file access must read the Sync folder once and derive child items"
         )
-    requirement_paths = {
-        "/喝水BO～/Sync/today-summary.json",
-        "/喝水BO～/Sync/喝水记录.csv",
-    }
+    requirement_paths = {"/喝水BO～/Sync/today-summary.json"}
     if not requirement_paths.issubset(set(open_paths)):
-        failures.append(
-            "today summary and shared CSV must also be read by direct file path"
-        )
+        failures.append("today summary must be read by direct file path")
     if "始终允许" not in all_text:
         failures.append("first-run permission guidance is missing")
 
@@ -140,35 +121,8 @@ def main() -> int:
         if "Authorization" not in all_text or "Bearer" not in all_text:
             failures.append("LAN request authorization is missing")
 
-    today_requests = [
-        (index, action.get("WFWorkflowActionParameters", {}))
-        for index, action in enumerate(actions)
-        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.downloadurl"
-        and "/v1/today" in "\n".join(strings(action))
-    ]
-    if not today_requests:
-        failures.append("live today-summary request is missing")
-    else:
-        today_references: set[str] = set()
-        for _, today_request in today_requests:
-            today_references.update(references(today_request))
-            if str(today_request.get("WFHTTPMethod", "")).upper() != "GET":
-                failures.append("today-summary request must use GET")
-            if today_request.get("WFShowError") is not False:
-                failures.append("today-summary request must fall back without aborting")
-            if "WFHTTPBodyType" in today_request:
-                failures.append("today-summary GET must not have a request body")
-        if not any(reference.lower().endswith("besturl") for reference in today_references):
-            failures.append("today-summary request must use the selected Mac address")
-        if not any(reference.lower().endswith("besttoken") for reference in today_references):
-            failures.append("today-summary request must use the device token")
-    today_assignments = [
-        parameters
-        for parameters in action_parameters(actions, "is.workflow.actions.setvariable")
-        if str(parameters.get("WFVariableName", "")).lower().endswith("todaydictionary")
-    ]
-    if not today_assignments:
-        failures.append("today-summary response must be parsed into todayDictionary")
+    if any("/v1/today" in text for text in all_strings):
+        failures.append("recording must not return to the separate today view")
 
     summary_text_assignments = [
         parameters
@@ -185,23 +139,6 @@ def main() -> int:
     ]
     if not device_text_assignments:
         failures.append("device JSON files must be converted to text before parsing")
-
-    csv_source_checks = set()
-    for action in actions:
-        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.conditional":
-            csv_source_checks.update(
-                conditional_strings(action.get("WFWorkflowActionParameters", {}))
-            )
-    if "iphone" not in csv_source_checks:
-        failures.append("shared CSV fallback must recognize lowercase iphone sources")
-
-    csv_total_assignments = [
-        parameters
-        for parameters in action_parameters(actions, "is.workflow.actions.setvariable")
-        if str(parameters.get("WFVariableName", "")).lower().endswith("csvtodaytotal")
-    ]
-    if not csv_total_assignments:
-        failures.append("shared CSV fallback must calculate today's total")
 
     event_file_assignments = [
         parameters

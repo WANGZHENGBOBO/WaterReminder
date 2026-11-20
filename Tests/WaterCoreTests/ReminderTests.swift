@@ -46,6 +46,7 @@ final class ReminderTests {
         suite.testHistoryCellLabelsAmountsWithoutClutteringYear()
         suite.testHistoryExportRange()
         try suite.testDrinkSourcePersistenceAndMerge()
+        try suite.testCompanionWatchEventDecodesAndDeduplicates()
         suite.testWelcomeEligibility()
         suite.testSettingsSaveClosesOnlyOnSuccess()
         suite.testPopoverKeepsTopEdgeWhenContentHeightChanges()
@@ -598,6 +599,30 @@ final class ReminderTests {
         XCTAssertFalse(WelcomePolicy.shouldShow(completed: true, existingState: false))
         XCTAssertFalse(WelcomePolicy.shouldShow(completed: true, existingState: true))
     }
+
+    func testCompanionWatchEventDecodesAndDeduplicates() throws {
+        let json = """
+        {
+          "schemaVersion": 1,
+          "id": "F4C5D5A4-0C39-4758-9FC2-D09ADCD8136B",
+          "kind": "drink",
+          "recordID": "F4C5D5A4-0C39-4758-9FC2-D09ADCD8136B",
+          "timestamp": "2026-11-17T11:00:00Z",
+          "milliliters": 197,
+          "source": "iphone-watch",
+          "deviceID": "apple-watch-companion",
+          "deviceName": "Apple Watch",
+          "deviceShortName": "WCH"
+        }
+        """
+        let event = try DrinkSyncEvent.decode(Data(json.utf8))
+        let drinks = DrinkSyncMerge.apply(events: [event, event], to: [])
+
+        XCTAssertEqual(drinks.count, 1)
+        XCTAssertEqual(drinks[0].grams, 197)
+        XCTAssertEqual(drinks[0].source, .phone)
+        XCTAssertEqual(drinks[0].sourceDisplayLabel, "WCH")
+    }
     func testSettingsSaveClosesOnlyOnSuccess() {
         var closeCount = 0
         XCTAssertFalse(SettingsSaveFlow.perform(save: { false }, close: { closeCount += 1 }))
@@ -718,13 +743,30 @@ final class ReminderTests {
         try storage.flushOutbox()
         XCTAssertEqual(DrinkSyncMerge.apply(events: try storage.loadSharedEvents(), to: [first]).count, 0)
 
-        try storage.publishSettings(goal: 1800, serving: 197)
+        var weekday = Schedule()
+        weekday.start = 10 * 60
+        weekday.end = 20 * 60
+        weekday.interval = 30
+        var weekend = Schedule()
+        weekend.enabled = false
+        try storage.publishSettings(
+            goal: 1800,
+            serving: 250,
+            weekday: weekday,
+            weekend: weekend,
+            snooze: 15,
+            stopAtGoal: false
+        )
         let settings = try JSONDecoder().decode(
             DrinkSyncSettings.self,
             from: Data(contentsOf: cloud.appendingPathComponent("settings.json"))
         )
         XCTAssertEqual(settings.goal, 1800)
-        XCTAssertEqual(settings.serving, 197)
+        XCTAssertEqual(settings.serving, 250)
+        XCTAssertEqual(settings.weekday, weekday)
+        XCTAssertEqual(settings.weekend, weekend)
+        XCTAssertEqual(settings.snooze, 15)
+        XCTAssertEqual(settings.stopAtGoal, false)
 
         try Data("197\n250\n".utf8).write(to: cloud.appendingPathComponent("iphone-amounts.txt"))
         try Data("2026-10-23T10:15:00+08:00\n2026年10月23日 11:20\n".utf8)

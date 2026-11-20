@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Implementation update:** watchOS 26.4 之后，手表端 `Run Shortcut` 调用另一个捷径会报 `Shortcut Not Found` 或启动即退出。当前实现改为：手表把 `drink:喝水BO～<ml>` 发给自己，iPhone 的“收到消息”自动化再执行 `喝水BO～`。以下保留最初实施步骤作为历史记录，当前行为以源码、测试和 `docs/iphone-shortcut/README.md` 为准。
+
 **Goal:** Add a thin Apple Watch Shortcut that opens at 197ml, lets the user adjust the number, and sends the amount to the existing iPhone Shortcut for iCloud and LAN synchronization.
 
 **Architecture:** Keep `喝水BO～` as the iPhone executor. Add `喝水BO～ 手表` with one number prompt and one `Run Shortcut` action. The launcher sends `drink:<ml>` as input; the executor records that amount and skips its menu when this input is present.

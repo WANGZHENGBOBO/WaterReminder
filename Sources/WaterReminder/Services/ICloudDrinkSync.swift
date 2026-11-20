@@ -43,8 +43,16 @@ struct ICloudDrinkSync {
     func flushOutbox(sourceDeviceID: String? = nil) throws {
         try filesystem.flushOutbox(sourceDeviceID: sourceDeviceID)
     }
-    func publishSettings(goal: Int, serving: Int) throws {
-        try filesystem.publishSettings(goal: goal, serving: serving)
+    func publishSettings(goal: Int, serving: Int, weekday: Schedule,
+                         weekend: Schedule, snooze: Int, stopAtGoal: Bool) throws {
+        try filesystem.publishSettings(
+            goal: goal,
+            serving: serving,
+            weekday: weekday,
+            weekend: weekend,
+            snooze: snooze,
+            stopAtGoal: stopAtGoal
+        )
     }
     func publishTodaySummary(drinks: [Drink], goal: Int, now: Date) throws {
         try filesystem.publishTodaySummary(drinks: drinks, goal: goal, now: now)

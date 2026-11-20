@@ -74,7 +74,7 @@ struct SettingsView: View {
                     }
                 }
                 Section("通用") {
-                    Button("重新查看使用指南") { WelcomeWindow.shared.show(store: store) }
+                    Button("查看完整设置说明") { SetupGuideWindow.shared.show(store: store) }
                     Toggle("使用 iCloud 同步 iPhone 快捷指令", isOn: Binding(
                         get: { draft.iCloudSyncEnabled ?? false },
                         set: { draft.iCloudSyncEnabled = $0 }

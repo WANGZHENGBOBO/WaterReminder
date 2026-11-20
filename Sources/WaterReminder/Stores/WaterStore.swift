@@ -477,7 +477,14 @@ final class WaterStore: ObservableObject {
             }
             try? drinkSync.flushOutbox(sourceDeviceID: lanIdentity.deviceID)
             try? drinkSync.appendMissingShared(drinks: state.drinks)
-            try? drinkSync.publishSettings(goal: preferences.goal, serving: preferences.serving)
+            try? drinkSync.publishSettings(
+                goal: preferences.goal,
+                serving: preferences.serving,
+                weekday: preferences.weekday,
+                weekend: preferences.weekend,
+                snooze: preferences.snooze,
+                stopAtGoal: preferences.stopAtGoal
+            )
             try? drinkSync.publishTodaySummary(drinks: state.drinks, goal: preferences.goal, now: Date())
             if !result.duplicate, let amount = event.milliliters {
                 notice = "已从 iPhone 记录 \(amount)ml"
@@ -579,7 +586,14 @@ final class WaterStore: ObservableObject {
             guard mergeExternalDrinks(merged) else { return }
             try drinkSync.appendMissingShared(drinks: state.drinks)
             try drinkSync.flushOutbox(sourceDeviceID: lanIdentity.deviceID)
-            try drinkSync.publishSettings(goal: preferences.goal, serving: preferences.serving)
+            try drinkSync.publishSettings(
+                goal: preferences.goal,
+                serving: preferences.serving,
+                weekday: preferences.weekday,
+                weekend: preferences.weekend,
+                snooze: preferences.snooze,
+                stopAtGoal: preferences.stopAtGoal
+            )
             try drinkSync.publishTodaySummary(drinks: state.drinks, goal: preferences.goal, now: now)
             if lanEnabled {
                 do {

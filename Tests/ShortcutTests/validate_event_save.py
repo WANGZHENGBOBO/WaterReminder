@@ -20,12 +20,39 @@ amount_prompts = [
     == "这次喝了多少 ml？"
 ]
 if len(amount_prompts) != 1:
-    raise SystemExit("FAIL: Custom amount prompt is missing or duplicated")
-if any(
-    key in amount_prompts[0]
-    for key in ("WFAskActionDefaultAnswer", "WFAskActionDefaultAnswerNumber")
-):
-    raise SystemExit("FAIL: Custom amount prompt must not prefill a number")
+    raise SystemExit("FAIL: Amount prompt is missing or duplicated")
+if amount_prompts[0].get("WFAskActionDefaultAnswer") != "197":
+    raise SystemExit("FAIL: Amount prompt must default to 197")
+if amount_prompts[0].get("WFAskActionDefaultAnswerNumber") != 197:
+    raise SystemExit("FAIL: Amount prompt numeric default must be 197")
+
+for action in actions:
+    parameters = action.get("WFWorkflowActionParameters", {})
+    if action.get("WFWorkflowActionIdentifier") != "is.workflow.actions.number":
+        continue
+    value = parameters.get("WFNumberActionNumber")
+    if not isinstance(value, (int, float)):
+        raise SystemExit("FAIL: Number actions must contain numeric values")
+
+event_parts = [
+    action.get("WFWorkflowActionParameters", {})
+    for action in actions
+    if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.setvariable"
+    and action.get("WFWorkflowActionParameters", {}).get("WFVariableName") == "eventParts"
+]
+if len(event_parts) != 1:
+    raise SystemExit("FAIL: Event payload parts are missing or duplicated")
+parts_uuid = event_parts[0].get("WFInput", {}).get("Value", {}).get("OutputUUID")
+parts_action = next(
+    (
+        action
+        for action in actions
+        if action.get("WFWorkflowActionParameters", {}).get("UUID") == parts_uuid
+    ),
+    None,
+)
+if parts_action is None or "recordAmountText" not in str(parts_action):
+    raise SystemExit("FAIL: Event JSON must include the confirmed amount")
 
 for index, action in enumerate(actions):
     if action.get("WFWorkflowActionIdentifier") != "is.workflow.actions.documentpicker.save":

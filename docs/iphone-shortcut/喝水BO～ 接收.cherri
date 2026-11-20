@@ -1,0 +1,60 @@
+#define name 喝水BO～ 接收
+#define color blue
+#define glyph waterDrop
+#define version 26
+
+#include 'actions/calendar'
+#include 'actions/documents'
+#include 'actions/math'
+#include 'actions/text'
+
+@rawInput = ShortcutInput
+@inputText = getText(@rawInput)
+@inputText = trimWhitespace(@inputText)
+if !@inputText {
+    alert("没有收到手表消息。请在“收到消息”自动化中运行本快捷指令，并把输入设为“快捷指令输入”。", "缺少手表消息")
+    stop()
+}
+
+@markerParts = splitText(@inputText, "喝水BO～")
+@markerCount = count(@markerParts)
+if @markerCount != 2 {
+    alert("这条消息不是喝水记录。请从手表重新发送。", "无法识别手表消息")
+    stop()
+}
+
+@amountPart = getListItem(@markerParts, 2)
+@amountText = getText(@amountPart)
+@amountNumber = getNumbers(@amountText)
+@roundedAmount = round(@amountNumber)
+@amount = getNumbers(@roundedAmount)
+if @amount < 1 || @amount > 2000 {
+    alert("手表消息里的水量不是 1～2000ml。", "水量不正确")
+    stop()
+}
+
+@eventTime = formatDate(CurrentDate, "Custom", "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+@eventStamp = formatDate(CurrentDate, "Custom", "yyyyMMddHHmmss")
+@eventRandom = randomNumber(100000000, 999999999)
+@eventID = "watch-{@eventStamp}-{@eventRandom}"
+@amountJSON = getText(@amount)
+@eventParts = list(
+    '{"schemaVersion":1,"id":"',
+    @eventID,
+    '","kind":"drink","recordID":"',
+    @eventID,
+    '","timestamp":"',
+    @eventTime,
+    '","milliliters":',
+    @amountJSON,
+    ',"source":"iphone-watch","deviceID":"iphone-watch","deviceShortName":"WCH","deviceName":"Apple Watch"}'
+)
+@eventJSON = joinText(@eventParts, "")
+
+@eventFile = saveFile("/喝水BO～/Sync/Events/{@eventID}.json", @eventJSON, true)
+if !@eventFile {
+    alert("没有写入 iCloud。请先手动运行一次“喝水BO～”并允许访问 iCloud 中的快捷指令文件夹。", "没有保存")
+    stop()
+}
+
+showNotification("已记录 {@amount}ml，Mac 会自动读取这条手表记录。", "手表记录已写入 iCloud", false)

@@ -10,11 +10,13 @@ if [[ "$MODE" != "--build-only" ]]; then
 fi
 swift build
 BUILD_DIR="$(swift build --show-bin-path)"
+rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
 cp "$BUILD_DIR/WaterReminder" "$APP_BUNDLE/Contents/MacOS/WaterReminder"
 cp Resources/Info.plist "$APP_BUNDLE/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 cp Resources/喝水BO～.shortcut "$APP_BUNDLE/Contents/Resources/喝水BO～.shortcut"
+cp "Resources/喝水BO～ 接收.shortcut" "$APP_BUNDLE/Contents/Resources/喝水BO～ 接收.shortcut"
 cp "Resources/喝水BO～ 手表.shortcut" "$APP_BUNDLE/Contents/Resources/喝水BO～ 手表.shortcut"
 xattr -cr "$APP_BUNDLE"
 codesign --force --sign - "$APP_BUNDLE"

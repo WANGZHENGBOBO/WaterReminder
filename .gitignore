@@ -1,6 +1,7 @@
 .build/
 .build-*/
 dist/
+personal/
 .DS_Store
 .swiftpm/
 __pycache__/

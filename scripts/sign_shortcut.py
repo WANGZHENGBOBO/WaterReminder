@@ -9,6 +9,8 @@ import sys
 import urllib.request
 from pathlib import Path
 
+from patch_shortcut_numbers import normalize
+
 
 SIGNING_URL = "https://hubsign.routinehub.services/sign"
 SUPPORTED_CONTENT_TYPES = {
@@ -34,6 +36,7 @@ def main() -> int:
 
     with source.open("rb") as shortcut_file:
         document = plistlib.load(shortcut_file)
+    normalize(document)
     payload = json.dumps({
         "shortcutName": shortcut_name,
         "shortcut": plistlib.dumps(document, fmt=plistlib.FMT_XML).decode(),

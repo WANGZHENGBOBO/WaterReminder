@@ -4,14 +4,29 @@ public struct DrinkSyncSettings: Codable, Equatable {
     public let schemaVersion: Int
     public let goal: Int
     public let serving: Int
+    public let weekday: Schedule?
+    public let weekend: Schedule?
+    public let snooze: Int?
+    public let stopAtGoal: Bool?
 
-    public init(goal: Int, serving: Int) throws {
+    public init(
+        goal: Int,
+        serving: Int,
+        weekday: Schedule? = nil,
+        weekend: Schedule? = nil,
+        snooze: Int? = nil,
+        stopAtGoal: Bool? = nil
+    ) throws {
         guard (1...10_000).contains(goal), (1...2_000).contains(serving) else {
             throw DrinkSyncError.invalidAmount
         }
         self.schemaVersion = 1
         self.goal = goal
         self.serving = serving
+        self.weekday = weekday
+        self.weekend = weekend
+        self.snooze = snooze
+        self.stopAtGoal = stopAtGoal
     }
 }
 
@@ -266,8 +281,22 @@ public struct DrinkSyncFilesystem {
         }
     }
 
-    public func publishSettings(goal: Int, serving: Int) throws {
-        let settings = try DrinkSyncSettings(goal: goal, serving: serving)
+    public func publishSettings(
+        goal: Int,
+        serving: Int,
+        weekday: Schedule? = nil,
+        weekend: Schedule? = nil,
+        snooze: Int? = nil,
+        stopAtGoal: Bool? = nil
+    ) throws {
+        let settings = try DrinkSyncSettings(
+            goal: goal,
+            serving: serving,
+            weekday: weekday,
+            weekend: weekend,
+            snooze: snooze,
+            stopAtGoal: stopAtGoal
+        )
         try fileManager.createDirectory(at: syncDirectory, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

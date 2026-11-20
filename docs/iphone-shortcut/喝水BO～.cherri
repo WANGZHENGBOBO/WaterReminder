@@ -13,262 +13,48 @@
 
 @today = formatDate(CurrentDate, "Custom", "yyyy-MM-dd")
 
-@shortcutInputText = "{ShortcutInput}"
+@rawShortcutInput = ShortcutInput
+@shortcutInputText = ""
+if @rawShortcutInput {
+    @shortcutInputText = getText(@rawShortcutInput)
+}
 @watchAmount = 0
-@watchInputPresent = false
+@watchCommand = "phone"
 if @shortcutInputText {
-    @watchInputParts = splitText(@shortcutInputText, ":")
-    @watchInputPartCount = count(@watchInputParts)
-    if @watchInputPartCount == 2 {
-        @watchKindField = getListItem(@watchInputParts, 1)
-        @watchAmountField = getListItem(@watchInputParts, 2)
-        @watchKindText = getText(@watchKindField)
-        @watchAmountText = getText(@watchAmountField)
-        @watchKind = trimWhitespace(@watchKindText)
-        @watchCleanAmount = trimWhitespace(@watchAmountText)
-        if @watchKind == "drink" {
-            @watchAmount = getNumbers(@watchCleanAmount)
-            if @watchAmount >= 1 && @watchAmount <= 2000 {
-                @watchInputPresent = true
-            }
+    @shortcutInputParts = splitText(@shortcutInputText, ":")
+    @shortcutInputPartCount = count(@shortcutInputParts)
+    if @shortcutInputPartCount == 2 {
+        @shortcutKindField = getListItem(@shortcutInputParts, 1)
+        @shortcutAmountField = getListItem(@shortcutInputParts, 2)
+        @shortcutKindText = getText(@shortcutKindField)
+        @shortcutAmountText = getText(@shortcutAmountField)
+        @shortcutKind = trimWhitespace(@shortcutKindText)
+        @shortcutCleanAmount = trimWhitespace(@shortcutAmountText)
+        if @shortcutKind == "drink" {
+            @watchAmount = getNumbers(@shortcutCleanAmount)
+            @watchCommand = "drink"
         }
     }
-    if !@watchInputPresent {
-        alert("无法识别手表输入，请重新运行。", "水量不正确")
-        stop()
-    }
-}
-
-@menuItems = list("喝了 197ml", "自定义水量", "查看今日记录")
-@choiceText = ""
-if !@watchInputPresent {
-    @choice = chooseFromList(@menuItems, "喝水BO～")
-    @choiceText = "{@choice}"
-}
-
-if !@watchInputPresent && @choiceText == "查看今日记录" {
-    @viewGoal = 1800
-    @viewBaseTotal = 0
-    @viewSummaryCursor = 0
-    @viewSummaryRecords = ""
-    @viewHasSummaryToday = false
-    @viewCSVTodayTotal = 0
-    @viewCSVTodayRecords = ""
-
-    @viewSyncFolder = getFile("/喝水BO～/Sync", nil, false)
-    if !@viewSyncFolder {
-        alert("第一次使用时，iPhone 会询问是否允许快捷指令访问 iCloud 中的「快捷指令」文件夹。请点“始终允许”。它只用于读写喝水记录，授权后不会再反复询问。", "允许访问喝水记录")
-        stop()
-    }
-
-    @viewSummaryFile = getFile("/喝水BO～/Sync/today-summary.json", nil, false)
-    @viewCSVFile = getFile("/喝水BO～/Sync/喝水记录.csv", nil, false)
-    if @viewSummaryFile {
-        @viewSummaryText = getText(@viewSummaryFile)
-        @viewSummary = getDictionary(@viewSummaryText)
-        @viewSummaryDay = "{@viewSummary['day']}"
-        if @viewSummaryDay == @today {
-            @viewHasSummaryToday = true
-            @viewGoalText = "{@viewSummary['goal']}"
-            @viewTotalText = "{@viewSummary['total']}"
-            @viewCursorText = "{@viewSummary['phoneLogCount']}"
-            @viewGoal = getNumbers(@viewGoalText)
-            @viewBaseTotal = getNumbers(@viewTotalText)
-            @viewSummaryCursor = getNumbers(@viewCursorText)
-            if !@viewGoal { @viewGoal = 1800 }
-            if !@viewBaseTotal { @viewBaseTotal = 0 }
-            if !@viewSummaryCursor { @viewSummaryCursor = 0 }
-            @viewRecords = @viewSummary['records']
-            for viewRecord in @viewRecords {
-                @viewRecordDictionary = getDictionary(@viewRecord)
-                @viewRecordTimestampText = "{@viewRecordDictionary['timestamp']}"
-                @viewRecordDates = getDates(@viewRecordTimestampText)
-                @viewRecordTimestamp = getFirstItem(@viewRecordDates)
-                @viewRecordTimestampValue = getText(@viewRecordTimestamp)
-                @viewRecordTime = formatDate(@viewRecordTimestampValue, "Custom", "HH:mm")
-                @viewRecordAmount = "{@viewRecordDictionary['milliliters']}"
-                @viewRecordDevice = "{@viewRecordDictionary['deviceShortName']}"
-                if @viewRecordDevice && @viewRecordDevice != "null" {
-                    @viewSummaryRecords = "{@viewSummaryRecords}{@viewRecordTime}　{@viewRecordAmount}ml　{@viewRecordDevice}\n"
-                } else {
-                    @viewSummaryRecords = "{@viewSummaryRecords}{@viewRecordTime}　{@viewRecordAmount}ml\n"
-                }
-            }
-        }
-    }
-
-    @viewPending = 0
-    @viewPendingHistory = ""
-    @viewCSVText = ""
-    if @viewCSVFile { @viewCSVText = getText(@viewCSVFile) }
-    @viewCSVLines = splitText(@viewCSVText, "\n")
-    @viewPhoneIndex = 0
-    for viewCSVLine in @viewCSVLines {
-        @viewCSVLineText = getText(@viewCSVLine)
-        @viewFields = splitText(@viewCSVLineText, ",")
-        @viewFieldCount = count(@viewFields)
-        if @viewFieldCount == 6 {
-            @viewKindField = getListItem(@viewFields, 2)
-            @viewSourceField = getListItem(@viewFields, 6)
-            @viewKindText = getText(@viewKindField)
-            @viewSourceText = getText(@viewSourceField)
-            @viewKind = trimWhitespace(@viewKindText)
-            @viewSource = trimWhitespace(@viewSourceText)
-            if @viewKind == "drink" {
-                @viewSource = lowercase(@viewSource)
-                if @viewSource == "iphone" || @viewSource == "phone" || @viewSource == "iphone-shortcut" {
-                    @viewPhoneIndex += 1
-                }
-                @viewTimeField = getListItem(@viewFields, 4)
-                @viewAmountField = getListItem(@viewFields, 5)
-                @viewTimeText = getText(@viewTimeField)
-                @viewAmountText = getText(@viewAmountField)
-                @viewCleanTime = trimWhitespace(@viewTimeText)
-                @viewCleanAmount = trimWhitespace(@viewAmountText)
-                @viewLineAmount = getNumbers(@viewCleanAmount)
-                @viewLineDates = getDates(@viewCleanTime)
-                @viewLineTimestamp = getFirstItem(@viewLineDates)
-                if @viewLineTimestamp {
-                    if @viewLineTimestamp isToday {
-                        if @viewLineAmount >= 1 && @viewLineAmount <= 2000 {
-                            @viewLineTimestampText = getText(@viewLineTimestamp)
-                            @viewLineDisplayTime = formatDate(@viewLineTimestampText, "Custom", "HH:mm")
-                            @viewCSVTodayTotal = @viewCSVTodayTotal + @viewLineAmount
-                            @viewCSVDevice = "mac"
-                            if @viewSource == "iphone" || @viewSource == "phone" || @viewSource == "iphone-shortcut" {
-                                @viewCSVDevice = "iPH"
-                            }
-                            @viewCSVTodayRecords = "{@viewCSVTodayRecords}{@viewLineDisplayTime}　{@viewLineAmount}ml　{@viewCSVDevice}\n"
-                            if @viewSource == "iphone" || @viewSource == "phone" || @viewSource == "iphone-shortcut" {
-                                if @viewPhoneIndex > @viewSummaryCursor {
-                                    @viewPending = @viewPending + @viewLineAmount
-                                    @viewPendingHistory = "{@viewPendingHistory}{@viewLineDisplayTime}　{@viewLineAmount}ml\n"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @viewPhoneIPv4 = getLocalIP("IPv4")
-    @viewPhoneIPText = getText(@viewPhoneIPv4)
-    @viewPhoneParts = splitText(@viewPhoneIPText, ".")
-    @viewPhonePartCount = count(@viewPhoneParts)
-    @viewPhonePrefix = ""
-    if @viewPhonePartCount >= 3 {
-        @viewPhonePart1 = getListItem(@viewPhoneParts, 1)
-        @viewPhonePart2 = getListItem(@viewPhoneParts, 2)
-        @viewPhonePart3 = getListItem(@viewPhoneParts, 3)
-        @viewPhonePrefix = "{@viewPhonePart1}.{@viewPhonePart2}.{@viewPhonePart3}"
-    }
-
-    @viewBestURL = nothing()
-    @viewBestFallbackURL = nothing()
-    @viewBestToken = nothing()
-    @viewBestShortName = nothing()
-    @viewBestRank = 0
-    @viewBestEpoch = 0
-    @viewDevicesFolder = getFile("/喝水BO～/Sync/Devices", nil, false)
-    if @viewDevicesFolder {
-        @viewDeviceFiles = getFolderContents(@viewDevicesFolder)
-        for viewDeviceFile in @viewDeviceFiles {
-            @viewDeviceText = getText(@viewDeviceFile)
-            @viewDevice = getDictionary(@viewDeviceText)
-            if @viewDevice {
-                @viewDeviceSubnet = "{@viewDevice['lanSubnet']}"
-                @viewDeviceRole = "{@viewDevice['role']}"
-                @viewDeviceEpochText = "{@viewDevice['lastSeenEpoch']}"
-                @viewDeviceEpoch = getNumbers(@viewDeviceEpochText)
-                @viewDeviceRank = 0
-                if @viewDeviceRole == "primary" { @viewDeviceRank = 1 }
-                if @viewDeviceSubnet == @viewPhonePrefix {
-                    if @viewDeviceRank > @viewBestRank {
-                        @viewBestRank = @viewDeviceRank
-                        @viewBestEpoch = @viewDeviceEpoch
-                        @viewBestURL = "{@viewDevice['lanURL']}"
-                        @viewBestFallbackURL = "{@viewDevice['lanFallbackURL']}"
-                        @viewBestToken = "{@viewDevice['lanToken']}"
-                        @viewBestShortName = "{@viewDevice['shortName']}"
-                    } else {
-                        if @viewDeviceRank == @viewBestRank && @viewDeviceEpoch > @viewBestEpoch {
-                            @viewBestEpoch = @viewDeviceEpoch
-                            @viewBestURL = "{@viewDevice['lanURL']}"
-                            @viewBestFallbackURL = "{@viewDevice['lanFallbackURL']}"
-                            @viewBestToken = "{@viewDevice['lanToken']}"
-                            @viewBestShortName = "{@viewDevice['shortName']}"
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @viewTotal = @viewBaseTotal + @viewPending
-    @viewFinalGoal = @viewGoal
-    @viewFinalRecords = "{@viewSummaryRecords}{@viewPendingHistory}"
-    if @viewBestURL && @viewBestToken {
-        @viewTodayResponse = downloadURL("{@viewBestURL}/v1/today", {"Authorization": "Bearer {@viewBestToken}"})
-        @viewTodayResponseText = getText(@viewTodayResponse)
-        if @viewTodayResponseText { @viewTodayDictionary = getDictionary(@viewTodayResponseText) }
-        if !@viewTodayDictionary && @viewBestFallbackURL {
-            @viewTodayFallbackResponse = downloadURL("{@viewBestFallbackURL}/v1/today", {"Authorization": "Bearer {@viewBestToken}"})
-            @viewTodayFallbackText = getText(@viewTodayFallbackResponse)
-            if @viewTodayFallbackText { @viewTodayDictionary = getDictionary(@viewTodayFallbackText) }
-        }
-        if @viewTodayDictionary {
-            @viewLiveTotalText = "{@viewTodayDictionary['total']}"
-            if @viewLiveTotalText {
-                @viewTotal = getNumbers(@viewLiveTotalText)
-                @viewLiveGoalText = "{@viewTodayDictionary['goal']}"
-                @viewLiveGoal = getNumbers(@viewLiveGoalText)
-                if @viewLiveGoal { @viewFinalGoal = @viewLiveGoal }
-                @viewLiveRecords = getValue(@viewTodayDictionary, "records")
-                @viewLiveRecordsText = ""
-                for viewLiveItem in @viewLiveRecords {
-                    @viewLiveRecord = getDictionary(@viewLiveItem)
-                    if @viewLiveRecord {
-                        @viewLiveTime = "{@viewLiveRecord['displayTime']}"
-                        @viewLiveAmount = "{@viewLiveRecord['milliliters']}"
-                        @viewLiveDevice = "{@viewLiveRecord['deviceShortName']}"
-                        if @viewLiveDevice && @viewLiveDevice != "null" {
-                            @viewLiveRecordsText = "{@viewLiveRecordsText}{@viewLiveTime}　{@viewLiveAmount}ml　{@viewLiveDevice}\n"
-                        } else {
-                            @viewLiveRecordsText = "{@viewLiveRecordsText}{@viewLiveTime}　{@viewLiveAmount}ml\n"
-                        }
-                    }
-                }
-                @viewFinalRecords = @viewLiveRecordsText
-            }
-        }
-        if !@viewTodayDictionary && !@viewHasSummaryToday {
-            @viewTotal = @viewCSVTodayTotal
-            @viewFinalRecords = @viewCSVTodayRecords
-        }
-    }
-    @viewPercent = @viewTotal * 100
-    @viewPercent = @viewPercent / @viewFinalGoal
-    if !@viewFinalRecords { @viewFinalRecords = "今天还没有记录" }
-    show("今日 {@viewTotal} / {@viewFinalGoal}ml（{@viewPercent}%）\n\n{@viewFinalRecords}")
-    stop()
-}
-
-@amount = 197
-if @watchInputPresent {
-    @amount = @watchAmount
-}
-if !@watchInputPresent && @choiceText == "自定义水量" {
-    @amount = prompt("这次喝了多少 ml？", "Number")
-}
-if @amount < 1 || @amount > 2000 {
-    alert("请输入 1～2000ml", "水量不正确")
-    stop()
 }
 
 @recordSyncFolder = getFile("/喝水BO～/Sync", nil, false)
 if !@recordSyncFolder {
     alert("第一次使用时，iPhone 会询问是否允许快捷指令访问 iCloud 中的「快捷指令」文件夹。请点“始终允许”。它只用于读写喝水记录，授权后不会再反复询问。", "允许访问喝水记录")
+    stop()
+}
+
+if @watchCommand == "drink" {
+    @amountInput = @watchAmount
+} else {
+    @amountInput = prompt("这次喝了多少 ml？", "Number", "197")
+}
+@amountText = getText(@amountInput)
+const amountNumber = getNumbers(@amountText)
+const roundedAmount = round(amountNumber)
+@roundedText = getText(roundedAmount)
+@amount = getNumbers(@roundedText)
+if @amount < 1 || @amount > 2000 {
+    alert("请输入 1～2000ml", "水量不正确")
     stop()
 }
 

@@ -5,9 +5,12 @@
 #define from watch
 #define mac false
 
-#include 'actions/shortcuts'
+#include 'actions/contacts'
+#include 'actions/sharing'
 #include 'actions/text'
 #include 'actions/math'
+
+#question recipient "收件人：填自己的 Apple ID 邮箱（仅 iMessage；先在 iPhone 关闭“以短信发送”）" ""
 
 @amountInput = prompt("这次喝了多少 ml？", "Number", "197")
 @amountText = getText(@amountInput)
@@ -19,5 +22,6 @@ if @amount < 1 || @amount > 2000 {
     alert("请输入 1～2000ml", "水量不正确")
     stop()
 }
-@payload = "drink:{@amount}"
-run("喝水BO～", @payload)
+@payload = "drink:喝水BO～{@amount}"
+const recipientText = text(recipient)
+sendMessage(recipientText, @payload, false)

@@ -31,6 +31,7 @@ build_app() {
   cp Resources/Info.plist "$app/Contents/Info.plist"
   cp Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
   cp "Resources/喝水BO～.shortcut" "$app/Contents/Resources/喝水BO～.shortcut"
+  cp "Resources/喝水BO～ 接收.shortcut" "$app/Contents/Resources/喝水BO～ 接收.shortcut"
   cp "Resources/喝水BO～ 手表.shortcut" "$app/Contents/Resources/喝水BO～ 手表.shortcut"
   xattr -cr "$app"
   codesign --force --sign - "$app"
@@ -64,15 +65,35 @@ make_dmg "$ROOT_DIR/dist/intel/喝水BO～.app" \
 cp "$ROOT_DIR/dist/喝水BO～-AppleSilicon.dmg" "$SHARE_DIR/"
 cp "$ROOT_DIR/dist/喝水BO～-Intel.dmg" "$SHARE_DIR/"
 cp "docs/iphone-shortcut/喝水BO～.shortcut" \
-  "$ROOT_DIR/dist/喝水BO～-iPhone-$VERSION.shortcut"
+  "$ARCHIVE_DIR/喝水BO～-$VERSION.shortcut"
 cp "docs/iphone-shortcut/喝水BO～ 手表.shortcut" \
-  "$ROOT_DIR/dist/喝水BO～-Watch-$VERSION.shortcut"
+  "$ARCHIVE_DIR/喝水BO～ 手表-$VERSION.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 接收.shortcut" \
+  "$ARCHIVE_DIR/喝水BO～ 接收-$VERSION.shortcut"
+
+# Shortcuts uses the import filename as the shortcut title when the signed
+# artifact has no embedded title, so user-facing copies must not add a suffix.
 cp "docs/iphone-shortcut/喝水BO～.shortcut" \
-  "$SHARE_DIR/喝水BO～ $VERSION.shortcut"
+  "$ROOT_DIR/dist/喝水BO～.shortcut"
 cp "docs/iphone-shortcut/喝水BO～ 手表.shortcut" \
-  "$SHARE_DIR/喝水BO～ 手表 $VERSION.shortcut"
+  "$ROOT_DIR/dist/喝水BO～ 手表.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 接收.shortcut" \
+  "$ROOT_DIR/dist/喝水BO～ 接收.shortcut"
+cp "docs/iphone-shortcut/喝水BO～.shortcut" \
+  "$SHARE_DIR/喝水BO～.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 手表.shortcut" \
+  "$SHARE_DIR/喝水BO～ 手表.shortcut"
+cp "docs/iphone-shortcut/喝水BO～ 接收.shortcut" \
+  "$SHARE_DIR/喝水BO～ 接收.shortcut"
 cp "docs/安装与使用说明.txt" "$ROOT_DIR/dist/安装与使用说明.txt"
 cp "docs/安装与使用说明.txt" "$SHARE_DIR/安装与使用说明.txt"
+cp "docs/安裝與使用說明-繁體.txt" "$SHARE_DIR/安裝與使用說明-繁體.txt"
 cp "docs/发给朋友.txt" "$SHARE_DIR/发给朋友.txt"
+cp "docs/分享包清单.txt" "$SHARE_DIR/分享包清单.txt"
+rm -f "$SHARE_DIR/.DS_Store"
+
+rm -f "$ROOT_DIR/dist/喝水BO～-分享包.zip"
+ditto -c -k --norsrc --noextattr --noqtn --noacl --keepParent "$SHARE_DIR" \
+  "$ROOT_DIR/dist/喝水BO～-分享包.zip"
 
 echo "Release $VERSION built in $ROOT_DIR/dist"

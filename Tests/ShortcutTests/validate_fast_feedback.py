@@ -24,6 +24,27 @@ def action_text(action: dict[str, Any]) -> str:
     return "\n".join(strings(action.get("WFWorkflowActionParameters", {})))
 
 
+def variable_names(value: Any) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, dict):
+        name = value.get("VariableName")
+        if isinstance(name, str):
+            found.add(name)
+        for child in value.values():
+            found.update(variable_names(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.update(variable_names(child))
+    return found
+
+
+def parameter_path(parameters: dict[str, Any], key: str) -> str:
+    value = parameters.get(key)
+    if isinstance(value, str):
+        return value
+    return "\n".join(strings(value))
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print(f"usage: {sys.argv[0]} SHORTCUT", file=sys.stderr)
@@ -33,23 +54,45 @@ def main() -> int:
         actions = plistlib.load(shortcut).get("WFWorkflowActions", [])
 
     failures: list[str] = []
-    identifiers = [action.get("WFWorkflowActionIdentifier") for action in actions]
+    if any(
+        action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.choosefromlist"
+        for action in actions
+    ):
+        failures.append("recording must not start with a menu")
 
-    menu_indices = [
+    prompt_indices = [
         index
         for index, action in enumerate(actions)
-        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.choosefromlist"
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.ask"
     ]
-    sync_read_indices = [
+    if len(prompt_indices) != 1:
+        failures.append("recording must have exactly one amount prompt")
+
+    if prompt_indices:
+        prompt_parameters = actions[prompt_indices[0]].get("WFWorkflowActionParameters", {})
+        if prompt_parameters.get("WFAskActionDefaultAnswer") != "197":
+            failures.append("the phone prompt default must be 197")
+        if prompt_parameters.get("WFAskActionDefaultAnswerNumber") != 197:
+            failures.append("the phone numeric default must be 197")
+
+    rounded_assignments = [
         index
         for index, action in enumerate(actions)
-        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.documentpicker.open"
-        and "/喝水BO～/Sync" in action_text(action)
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.setvariable"
+        and action.get("WFWorkflowActionParameters", {}).get("WFVariableName") == "amount"
+        and index > min(prompt_indices, default=0)
     ]
-    if not menu_indices:
-        failures.append("the drink menu is missing")
-    elif sync_read_indices and min(menu_indices) > min(sync_read_indices):
-        failures.append("the drink menu must appear before scanning iCloud files")
+    validation_conditions = [
+        action.get("WFWorkflowActionParameters", {})
+        for action in actions
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.conditional"
+        and action.get("WFWorkflowActionParameters", {}).get("WFCondition") is None
+        and "WFActionParameterFilterTemplates" in str(action)
+    ]
+    if not rounded_assignments:
+        failures.append("the rounded amount is not assigned before validation")
+    if not any("amount" in variable_names(condition) for condition in validation_conditions):
+        failures.append("amount validation must use the final amount variable")
 
     notifications = [
         (index, action)
@@ -84,8 +127,16 @@ def main() -> int:
     if any("已同步到电脑" in text for text in strings(actions)):
         failures.append("recording must not show a second sync confirmation")
 
-    if "is.workflow.actions.ask" not in identifiers:
-        failures.append("the custom amount prompt is missing")
+    event_save_indices = [
+        index
+        for index, action in enumerate(actions)
+        if action.get("WFWorkflowActionIdentifier") == "is.workflow.actions.documentpicker.save"
+        and "/喝水BO～/Sync/Events/" in action_text(action)
+    ]
+    if not event_save_indices:
+        failures.append("the drink event save action is missing")
+    elif prompt_indices and max(event_save_indices) < min(prompt_indices):
+        failures.append("the drink event must be saved after the amount prompt")
 
     if failures:
         for failure in failures:

@@ -5,6 +5,7 @@ cd "$ROOT_DIR"
 swift build --arch x86_64 -c release
 BUILD_DIR="$(swift build --arch x86_64 -c release --show-bin-path)"
 APP_BUNDLE="$ROOT_DIR/dist/intel/喝水BO～.app"
+rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
 cp "$BUILD_DIR/WaterReminder" "$APP_BUNDLE/Contents/MacOS/WaterReminder"
 cp Resources/Info.plist "$APP_BUNDLE/Contents/Info.plist"
